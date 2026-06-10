@@ -1,5 +1,6 @@
 package com.HotelReservas.Modelos;
 
+import com.HotelReservas.observer.ListaEspera;
 import com.HotelReservas.state.EstadoReserva;
 import com.HotelReservas.strategy.EstrategiaPrecio;
 
