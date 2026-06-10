@@ -1,4 +1,4 @@
-public package com.HotelReservas.strategy;
+package com.HotelReservas.strategy;
  
 public class EstrategiaFrecuente implements EstrategiaPrecio {
  
