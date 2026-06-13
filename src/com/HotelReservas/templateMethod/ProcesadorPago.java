@@ -1,4 +1,4 @@
-package templateMethod;
+package com.HotelReservas.templateMethod;
 import com.HotelReservas.Modelos.Reserva;
 
 public abstract class ProcesadorPago {
@@ -34,4 +34,3 @@ public abstract class ProcesadorPago {
     protected abstract void realizarPago(double monto);
     protected abstract String getMetodoPago();
 }
-

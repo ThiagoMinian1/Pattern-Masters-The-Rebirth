@@ -1,4 +1,4 @@
-package templateMethod;
+package com.HotelReservas.templateMethod;
 import com.HotelReservas.Modelos.Reserva;
 
 public class PagoTransferencia extends ProcesadorPago {
@@ -29,4 +29,3 @@ public class PagoTransferencia extends ProcesadorPago {
         return "Transferencia Bancaria";
     }
 }
-
