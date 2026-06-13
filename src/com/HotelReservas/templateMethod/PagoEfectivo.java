@@ -1,4 +1,4 @@
-package templateMethod;
+package com.HotelReservas.templateMethod;
 import com.HotelReservas.Modelos.Reserva;
 
 public class PagoEfectivo extends ProcesadorPago {
@@ -29,4 +29,3 @@ public class PagoEfectivo extends ProcesadorPago {
         return "Efectivo";
     }
 }
-
