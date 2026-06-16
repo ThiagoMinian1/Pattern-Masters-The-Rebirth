@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PatternMasters Hotel</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Inter:wght@300;400;500;600&display=swap');
+
+        :root {
+          --ink: #0f0f0f;
+          --paper: #faf9f7;
+          --warm: #f5f0e8;
+          --gold: #b8975a;
+          --gold-light: #d4b882;
+          --muted: #8a8580;
+          --border: #e2ddd6;
+          --danger: #c0392b;
+          --success: #27ae60;
+          --warning: #e67e22;
+          --info: #2980b9;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+          font-family: 'Inter', sans-serif;
+          background: var(--paper);
+          color: var(--ink);
+          min-height: 100vh;
+        }
+
+        /* ── SIDEBAR ─────────────────────────────────────── */
+        .layout { display: flex; min-height: 100vh; }
+
+        .sidebar {
+          width: 240px;
+          background: var(--ink);
+          color: #e8e4dd;
+          display: flex;
+          flex-direction: column;
+          flex-shrink: 0;
+          position: fixed;
+          top: 0; left: 0; bottom: 0;
+          z-index: 100;
+        }
+
+        .sidebar-brand {
+          padding: 32px 24px 24px;
+          border-bottom: 1px solid #2a2a2a;
+        }
+
+        .sidebar-brand h1 {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 300;
+          font-size: 22px;
+          letter-spacing: 0.05em;
+          color: var(--gold-light);
+          line-height: 1.2;
+        }
+
+        .sidebar-brand span {
+          font-size: 10px;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          color: var(--muted);
+          display: block;
+          margin-top: 4px;
+        }
+
+        .sidebar-nav { flex: 1; padding: 16px 0; overflow-y: auto; }
+
+        .nav-section {
+          padding: 8px 24px 4px;
+          font-size: 9px;
+          letter-spacing: 0.25em;
+          text-transform: uppercase;
+          color: #555;
+          margin-top: 8px;
+        }
+
+        .nav-item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 10px 24px;
+          cursor: pointer;
+          font-size: 13px;
+          font-weight: 400;
+          color: #aaa;
+          transition: all 0.15s;
+          border-left: 2px solid transparent;
+        }
+
+        .nav-item:hover { color: #e8e4dd; background: #1a1a1a; }
+        .nav-item.active { color: var(--gold-light); border-left-color: var(--gold); background: #1a1a1a; }
+        .nav-item .icon { font-size: 15px; width: 18px; text-align: center; }
+
+        .sidebar-footer {
+          padding: 16px 24px;
+          border-top: 1px solid #2a2a2a;
+          font-size: 11px;
+          color: #444;
+        }
+
+        /* ── MAIN ────────────────────────────────────────── */
+        .main {
+          margin-left: 240px;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          min-height: 100vh;
+        }
+
+        .topbar {
+          background: #fff;
+          border-bottom: 1px solid var(--border);
+          padding: 0 32px;
+          height: 60px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          position: sticky;
+          top: 0;
+          z-index: 50;
+        }
+
+        .topbar-title {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 20px;
+          font-weight: 400;
+          color: var(--ink);
+        }
+
+        .topbar-actions { display: flex; gap: 8px; align-items: center; }
+
+        .badge-status {
+          font-size: 10px;
+          letter-spacing: 0.1em;
+          padding: 3px 10px;
+          border-radius: 20px;
+          font-weight: 500;
+          text-transform: uppercase;
+        }
+
+        .badge-success { background: #e8f5e9; color: var(--success); }
+        .badge-danger  { background: #fdecea; color: var(--danger); }
+        .badge-warning { background: #fef3e2; color: var(--warning); }
+        .badge-info    { background: #e3f2fd; color: var(--info); }
+        .badge-muted   { background: #f0ede8; color: var(--muted); }
+        .badge-gold    { background: #fdf6e3; color: var(--gold); }
+
+        .content { padding: 32px; flex: 1; }
+
+        /* ── CARDS ───────────────────────────────────────── */
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+          gap: 16px;
+          margin-bottom: 32px;
+        }
+
+        .stat-card {
+          background: #fff;
+          border: 1px solid var(--border);
+          border-radius: 8px;
+          padding: 20px;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .stat-card::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0; right: 0;
+          height: 3px;
+          background: var(--gold);
+        }
+
+        .stat-label {
+          font-size: 10px;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          color: var(--muted);
+          margin-bottom: 8px;
+        }
+
+        .stat-value {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 36px;
+          font-weight: 600;
+          color: var(--ink);
+          line-height: 1;
+        }
+
+        .stat-sub {
+          font-size: 11px;
+          color: var(--muted);
+          margin-top: 6px;
+        }
+
+        /* ── TABLE ───────────────────────────────────────── */
+        .table-card {
+          background: #fff;
+          border: 1px solid var(--border);
+          border-radius: 8px;
+          overflow: hidden;
+          margin-bottom: 24px;
+        }
+
+        .table-header {
+          padding: 18px 24px;
+          border-bottom: 1px solid var(--border);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+        }
+
+        .table-header h2 {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 400;
+          font-size: 18px;
+        }
+
+        .table-header-actions { display: flex; gap: 8px; align-items: center; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th {
+          text-align: left;
+          padding: 12px 16px;
+          font-size: 10px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: var(--muted);
+          font-weight: 500;
+          background: var(--warm);
+          border-bottom: 1px solid var(--border);
+        }
+
+        td {
+          padding: 14px 16px;
+          font-size: 13px;
+          border-bottom: 1px solid var(--border);
+          vertical-align: middle;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: var(--warm); transition: background 0.1s; }
+
+        .empty-state {
+          padding: 40px;
+          text-align: center;
+          color: var(--muted);
+          font-size: 13px;
+        }
+
+        /* ── BUTTONS ─────────────────────────────────────── */
+        .btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 8px 16px;
+          border-radius: 6px;
+          font-size: 13px;
+          font-weight: 500;
+          cursor: pointer;
+          border: none;
+          transition: all 0.15s;
+          font-family: 'Inter', sans-serif;
+          text-decoration: none;
+        }
+
+        .btn-primary {
+          background: var(--ink);
+          color: #fff;
+        }
+        .btn-primary:hover { background: #333; }
+
+        .btn-gold {
+          background: var(--gold);
+          color: #fff;
+        }
+        .btn-gold:hover { background: var(--gold-light); }
+
+        .btn-outline {
+          background: transparent;
+          color: var(--ink);
+          border: 1px solid var(--border);
+        }
+        .btn-outline:hover { background: var(--warm); }
+
+        .btn-danger {
+          background: transparent;
+          color: var(--danger);
+          border: 1px solid #f5c6c2;
+        }
+        .btn-danger:hover { background: #fdecea; }
+
+        .btn-success {
+          background: var(--success);
+          color: #fff;
+        }
+        .btn-success:hover { background: #219a52; }
+
+        .btn-sm { padding: 5px 10px; font-size: 11px; }
+        .btn-icon { padding: 6px 8px; }
+
+        /* ── MODAL ───────────────────────────────────────── */
+        .modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,0.5);
+          z-index: 200;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.2s;
+        }
+
+        .modal-overlay.open {
+          opacity: 1;
+          pointer-events: all;
+        }
+
+        .modal {
+          background: #fff;
+          border-radius: 10px;
+          width: 100%;
+          max-width: 520px;
+          max-height: 90vh;
+          overflow-y: auto;
+          transform: translateY(10px);
+          transition: transform 0.2s;
+        }
+
+        .modal-overlay.open .modal { transform: translateY(0); }
+
+        .modal-head {
+          padding: 24px 28px 20px;
+          border-bottom: 1px solid var(--border);
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .modal-head h3 {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 400;
+          font-size: 20px;
+        }
+
+        .modal-body { padding: 24px 28px; }
+        .modal-footer {
+          padding: 16px 28px;
+          border-top: 1px solid var(--border);
+          display: flex;
+          justify-content: flex-end;
+          gap: 8px;
+        }
+
+        /* ── FORM ────────────────────────────────────────── */
+        .form-group { margin-bottom: 16px; }
+
+        label {
+          display: block;
+          font-size: 11px;
+          font-weight: 500;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: var(--muted);
+          margin-bottom: 6px;
+        }
+
+        input, select, textarea {
+          width: 100%;
+          padding: 10px 14px;
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          font-size: 13px;
+          font-family: 'Inter', sans-serif;
+          color: var(--ink);
+          background: var(--paper);
+          transition: border-color 0.15s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+          outline: none;
+          border-color: var(--gold);
+        }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        /* ── TOAST ───────────────────────────────────────── */
+        .toast-container {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          z-index: 999;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .toast {
+          padding: 12px 18px;
+          border-radius: 8px;
+          font-size: 13px;
+          font-weight: 500;
+          box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+          animation: slideIn 0.3s ease;
+          max-width: 320px;
+        }
+
+        .toast-success { background: #1e7e34; color: #fff; }
+        .toast-error   { background: var(--danger); color: #fff; }
+        .toast-info    { background: var(--ink); color: #fff; }
+
+        @keyframes slideIn {
+          from { transform: translateX(100%); opacity: 0; }
+          to   { transform: translateX(0); opacity: 1; }
+        }
+
+        /* ── SECTION PAGES ───────────────────────────────── */
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* ── ESTADO CHIPS ────────────────────────────────── */
+        .chip {
+          display: inline-block;
+          padding: 2px 10px;
+          border-radius: 20px;
+          font-size: 10px;
+          font-weight: 600;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+        }
+
+        .chip-PENDIENTE    { background: #fef3e2; color: #d68910; }
+        .chip-CONFIRMADA   { background: #e8f5e9; color: #1e7e34; }
+        .chip-CANCELADA    { background: #fdecea; color: var(--danger); }
+        .chip-COMPLETADA   { background: #e3f2fd; color: #1565c0; }
+        .chip-LISTA_ESPERA { background: #f3e5f5; color: #7b1fa2; }
+        .chip-DISPONIBLE   { background: #e8f5e9; color: #1e7e34; }
+        .chip-OCUPADA      { background: #fdecea; color: var(--danger); }
+        .chip-MANTENIMIENTO{ background: #fef3e2; color: #d68910; }
+
+        /* ── PATTERN LABELS ──────────────────────────────── */
+        .pattern-tag {
+          font-size: 9px;
+          background: #f0ede8;
+          color: var(--muted);
+          padding: 2px 8px;
+          border-radius: 4px;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+        }
+
+        /* ── DECORATOR SECTION ───────────────────────────── */
+        .service-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+          gap: 10px;
+          margin-top: 12px;
+        }
+
+        .service-item {
+          border: 1px solid var(--border);
+          border-radius: 8px;
+          padding: 14px;
+          cursor: pointer;
+          transition: all 0.15s;
+          text-align: center;
+        }
+
+        .service-item:hover { border-color: var(--gold); background: #fdf6e3; }
+        .service-item.selected { border-color: var(--gold); background: #fdf6e3; }
+        .service-item .service-icon { font-size: 22px; margin-bottom: 6px; }
+        .service-item .service-name { font-size: 11px; font-weight: 500; color: var(--ink); }
+        .service-item .service-price { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+        /* ── ADAPTER SECTION ─────────────────────────────── */
+        .adapter-card {
+          border: 1px solid var(--border);
+          border-radius: 8px;
+          padding: 20px;
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          margin-bottom: 12px;
+          transition: all 0.15s;
+        }
+
+        .adapter-card:hover { border-color: var(--gold); }
+        .adapter-icon { font-size: 32px; }
+        .adapter-info h4 { font-size: 14px; font-weight: 500; }
+        .adapter-info p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+        .adapter-status { margin-left: auto; }
+
+        /* ── DIVIDER ─────────────────────────────────────── */
+        .divider {
+          height: 1px;
+          background: var(--border);
+          margin: 24px 0;
+        }
+
+        .section-eyebrow {
+          font-size: 10px;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          color: var(--gold);
+          margin-bottom: 8px;
+        }
+
+        .loading { text-align: center; padding: 40px; color: var(--muted); font-size: 13px; }
+    </style>
+</head>
+<body>
+
+<div class="toast-container" id="toasts"></div>
+
+<div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <h1>Pattern<br>Masters</h1>
+            <span>Hotel Management</span>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section">General</div>
+            <div class="nav-item active" onclick="navigate('dashboard')">
+                <span class="icon">◈</span> Dashboard
+            </div>
+
+            <div class="nav-section">Facade</div>
+            <div class="nav-item" onclick="navigate('checkin')">
+                <span class="icon">→</span> Check-in
+            </div>
+            <div class="nav-item" onclick="navigate('checkout')">
+                <span class="icon">←</span> Check-out
+            </div>
+
+            <div class="nav-section">Gestión</div>
+            <div class="nav-item" onclick="navigate('reservas')">
+                <span class="icon">📋</span> Reservas
+                <span class="pattern-tag" style="margin-left:auto;font-size:8px">Builder·State·Observer</span>
+            </div>
+            <div class="nav-item" onclick="navigate('habitaciones')">
+                <span class="icon">🚪</span> Habitaciones
+                <span class="pattern-tag" style="margin-left:auto;font-size:8px">Factory</span>
+            </div>
+            <div class="nav-item" onclick="navigate('huespedes')">
+                <span class="icon">👤</span> Huéspedes
+            </div>
+
+            <div class="nav-section">Servicios</div>
+            <div class="nav-item" onclick="navigate('servicios')">
+                <span class="icon">✦</span> Servicios Extra
+                <span class="pattern-tag" style="margin-left:auto;font-size:8px">Decorator</span>
+            </div>
+            <div class="nav-item" onclick="navigate('promociones')">
+                <span class="icon">%</span> Estrategias Costo
+                <span class="pattern-tag" style="margin-left:auto;font-size:8px">Strategy</span>
+            </div>
+            <div class="nav-item" onclick="navigate('pagos')">
+                <span class="icon">💳</span> Pagos
+                <span class="pattern-tag" style="margin-left:auto;font-size:8px">Template</span>
+            </div>
+            <div class="nav-item" onclick="navigate('adapter')">
+                <span class="icon">🔌</span> Integraciones
+                <span class="pattern-tag" style="margin-left:auto;font-size:8px">Adapter</span>
+            </div>
+        </nav>
+        <div class="sidebar-footer">v1.0 · PatternMasters © 2026</div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+        <header class="topbar">
+            <div class="topbar-title" id="topbar-title">Dashboard</div>
+            <div class="topbar-actions">
+                <div id="api-status" class="badge-status badge-muted">Conectando...</div>
+            </div>
+        </header>
+
+        <div class="content">
+
+            <!-- ── DASHBOARD ── -->
+            <div class="page active" id="page-dashboard">
+                <div class="section-eyebrow">Resumen general</div>
+                <h2 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:28px;margin-bottom:24px;color:var(--ink)">
+                    Estado del hotel
+                </h2>
+                <div class="stats-grid" id="stats-grid">
+                    <div class="stat-card"><div class="stat-label">Reservas</div><div class="stat-value" id="s-reservas">—</div></div>
+                    <div class="stat-card"><div class="stat-label">Disponibles</div><div class="stat-value" id="s-disponibles">—</div></div>
+                    <div class="stat-card"><div class="stat-label">Ocupadas</div><div class="stat-value" id="s-ocupadas">—</div></div>
+                    <div class="stat-card"><div class="stat-label">Huéspedes</div><div class="stat-value" id="s-huespedes">—</div></div>
+                    <div class="stat-card"><div class="stat-label">Ingresos</div><div class="stat-value" id="s-ingresos">—</div><div class="stat-sub">en facturas</div></div>
+                    <div class="stat-card"><div class="stat-label">Lista Espera</div><div class="stat-value" id="s-espera">—</div></div>
+                </div>
+                <div class="table-card">
+                    <div class="table-header">
+                        <h2>Últimas Reservas</h2>
+                    </div>
+                    <table id="dash-reservas-table">
+                        <thead><tr>
+                            <th>Huésped</th><th>Habitación</th><th>Ingreso</th><th>Salida</th><th>Estado</th>
+                        </tr></thead>
+                        <tbody id="dash-reservas-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ── CHECKIN ── -->
+            <div class="page" id="page-checkin">
+                <div class="section-eyebrow">Facade Pattern</div>
+                <h2 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:28px;margin-bottom:24px">
+                    Check-in de Huésped
+                </h2>
+                <div class="table-card" style="max-width:560px">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Reserva confirmada</label>
+                            <select id="ci-reserva">
+                                <option value="">Seleccionar reserva...</option>
+                            </select>
+                        </div>
+                        <div id="ci-info" style="display:none;padding:14px;background:var(--warm);border-radius:8px;font-size:13px;margin-bottom:16px;line-height:1.8"></div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Fecha Check-in</label>
+                                <input type="date" id="ci-fecha-in">
+                            </div>
+                            <div class="form-group">
+                                <label>Fecha Check-out</label>
+                                <input type="date" id="ci-fecha-out">
+                            </div>
+                        </div>
+                        <button class="btn btn-gold" style="width:100%" onclick="doCheckin()">
+                            Confirmar Check-in →
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── CHECKOUT ── -->
+            <div class="page" id="page-checkout">
+                <div class="section-eyebrow">Facade Pattern</div>
+                <h2 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:28px;margin-bottom:24px">
+                    Check-out
+                </h2>
+                <div class="table-card" style="max-width:560px">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Estadía activa</label>
+                            <select id="co-estadia" onchange="loadCheckoutInfo()">
+                                <option value="">Seleccionar estadía...</option>
+                            </select>
+                        </div>
+                        <div id="co-info" style="display:none;padding:14px;background:var(--warm);border-radius:8px;font-size:13px;margin-bottom:16px;line-height:1.8"></div>
+                        <div class="form-group">
+                            <label>Total a cobrar (calculado automáticamente)</label>
+                            <input type="number" id="co-total" placeholder="Se calcula por noches × precio base">
+                        </div>
+
+                        <div style="padding:12px;background:#e8f5e9;border-radius:8px;margin-bottom:16px;font-size:12px">
+                            <strong>Template Method:</strong> El proceso de pago sigue los pasos: 1) Validar estadía → 2) Calcular total → 3) Registrar factura → 4) Liberar habitación → 5) Marcar reserva como completada
+                        </div>
+
+                        <button class="btn btn-gold" style="width:100%" onclick="doCheckout()">
+                            Procesar Check-out y Pago →
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── RESERVAS ── -->
+            <div class="page" id="page-reservas">
+                <div class="section-eyebrow">Builder · State · Observer</div>
+                <h2 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:28px;margin-bottom:24px">
+                    Gestión de Reservas
+                </h2>
+                <div class="table-card">
+                    <div class="table-header">
+                        <h2>Reservas <span class="pattern-tag">Builder</span></h2>
+                        <div class="table-header-actions">
+                            <select id="filtro-estado" onchange="loadReservas()" style="font-size:12px;padding:6px 10px;width:auto">
+                                <option value="">Todos los estados</option>
+                                <option>PENDIENTE</option>
+                                <option>CONFIRMADA</option>
+                                <option>CANCELADA</option>
+                                <option>LISTA_ESPERA</option>
+                                <option>COMPLETADA</option>
+                            </select>
+                            <button class="btn btn-primary btn-sm" onclick="openModal('modal-nueva-reserva')">+ Nueva reserva</button>
+                        </div>
+                    </div>
+                    <table>
+                        <thead><tr>
+                            <th>#</th><th>Huésped</th><th>Habitación</th><th>Ingreso</th><th>Salida</th><th>Estado</th><th>Acciones</th>
+                        </tr></thead>
+                        <tbody id="reservas-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ── HABITACIONES ── -->
+            <div class="page" id="page-habitaciones">
+                <div class="section-eyebrow">Factory Method</div>
+                <h2 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:28px;margin-bottom:24px">
+                    Habitaciones
+                </h2>
+                <div class="table-card">
+                    <div class="table-header">
+                        <h2>Inventario de Habitaciones</h2>
+                        <button class="btn btn-primary btn-sm" onclick="openModal('modal-nueva-hab')">+ Nueva habitación</button>
+                    </div>
+                    <table>
+                        <thead><tr>
+                            <th>Número</th><th>Tipo</th><th>Estado</th><th>Precio Base</th><th>Acciones</th>
+                        </tr></thead>
+                        <tbody id="habitaciones-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ── HUÉSPEDES ── -->
+            <div class="page" id="page-huespedes">
+                <h2 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:28px;margin-bottom:24px">
+                    Huéspedes
+                </h2>
+                <div class="table-card">
+                    <div class="table-header">
+                        <h2>Registro de Huéspedes</h2>
+                        <button class="btn btn-primary btn-sm" onclick="openModal('modal-nuevo-huesped')">+ Nuevo huésped</button>
+                    </div>
+                    <table>
+                        <thead><tr>
+                            <th>Nombre</th><th>Email</th><th>Teléfono</th><th>Acciones</th>
+                        </tr></thead>
+                        <tbody id="huespedes-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ── SERVICIOS (Decorator) ── -->
+            <div class="page" id="page-servicios">
+                <div class="section-eyebrow">Decorator Pattern</div>
+                <h2 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:28px;margin-bottom:8px">
+                    Servicios Extras
+                </h2>
+                <p style="color:var(--muted);font-size:13px;margin-bottom:24px">
+                    El patrón Decorator "envuelve" la estadía base con servicios adicionales, sumando costos dinámicamente.
+                </p>
+                <div class="table-card" style="max-width:640px">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Estadía a decorar</label>
+                            <select id="dec-estadia">
+                                <option value="">Seleccionar estadía...</option>
+                            </select>
+                        </div>
+                        <label>Servicios disponibles</label>
+                        <div class="service-grid">
+                            <div class="service-item" onclick="toggleService(this,'Desayuno',800)">
+                                <div class="service-icon">🍳</div>
+                                <div class="service-name">Desayuno</div>
+                                <div class="service-price">$800/noche</div>
+                            </div>
+                            <div class="service-item" onclick="toggleService(this,'Almuerzo',1200)">
+                                <div class="service-icon">🍽️</div>
+                                <div class="service-name">Almuerzo</div>
+                                <div class="service-price">$1200/noche</div>
+                            </div>
+                            <div class="service-item" onclick="toggleService(this,'Spa',2500)">
+                                <div class="service-icon">💆</div>
+                                <div class="service-name">Spa</div>
+                                <div class="service-price">$2500/noche</div>
+                            </div>
+                            <div class="service-item" onclick="toggleService(this,'Parking',500)">
+                                <div class="service-icon">🅿️</div>
+                                <div class="service-name">Parking</div>
+                                <div class="service-price">$500/noche</div>
+                            </div>
+                            <div class="service-item" onclick="toggleService(this,'Transfer',1500)">
+                                <div class="service-icon">🚗</div>
+                                <div class="service-name">Transfer</div>
+                                <div class="service-price">$1500</div>
+                            </div>
+                            <div class="service-item" onclick="toggleService(this,'Minibar',600)">
+                                <div class="service-icon">🍷</div>
+                                <div class="service-name">Minibar</div>
+                                <div class="service-price">$600/noche</div>
+                            </div>
+                        </div>
+                        <div id="dec-total" style="margin-top:16px;padding:12px;background:var(--warm);border-radius:8px;font-size:13px;display:none"></div>
+                        <div style="margin-top:12px;padding:10px;background:#f0ede8;border-radius:8px;font-size:11px;color:var(--muted)">
+                            <strong>Nota:</strong> En la implementación Java, cada servicio es un ConcreteDecorator que envuelve la interfaz EstadíaDecorator. El precio total se calcula en cascada.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── PROMOCIONES (Strategy) ── -->
+            <div class="page" id="page-promociones">
+                <div class="section-eyebrow">Strategy Pattern</div>
+                <h2 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:28px;margin-bottom:8px">
+                    Estrategias de Costo
+                </h2>
+                <p style="color:var(--muted);font-size:13px;margin-bottom:24px">
+                    Cada promoción implementa la interfaz EstrategiaCosto. Se puede intercambiar en tiempo de ejecución.
+                </p>
+                <div class="table-card">
+                    <div class="table-header">
+                        <h2>Promociones activas</h2>
+                        <button class="btn btn-primary btn-sm" onclick="openModal('modal-nueva-promo')">+ Nueva estrategia</button>
+                    </div>
+                    <table>
+                        <thead><tr>
+                            <th>Nombre</th><th>Descuento</th><th>Simulación sobre $10.000</th><th>Acciones</th>
+                        </tr></thead>
+                        <tbody id="promociones-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ── PAGOS (Template Method) ── -->
+            <div class="page" id="page-pagos">
+                <div class="section-eyebrow">Template Method</div>
+                <h2 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:28px;margin-bottom:8px">
+                    Historial de Pagos
+                </h2>
+                <p style="color:var(--muted);font-size:13px;margin-bottom:24px">
+                    Cada pago sigue el template: validar → calcular → registrar → liberar. Las facturas son el resultado final.
+                </p>
+                <div class="table-card">
+                    <div class="table-header">
+                        <h2>Facturas generadas</h2>
+                    </div>
+                    <table>
+                        <thead><tr>
+                            <th>#</th><th>Huésped</th><th>Habitación</th><th>Check-in</th><th>Check-out</th><th>Total</th>
+                        </tr></thead>
+                        <tbody id="facturas-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ── ADAPTER ── -->
+            <div class="page" id="page-adapter">
+                <div class="section-eyebrow">Adapter Pattern</div>
+                <h2 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:28px;margin-bottom:8px">
+                    Integraciones Externas
+                </h2>
+                <p style="color:var(--muted);font-size:13px;margin-bottom:24px">
+                    El Adapter traduce la interfaz del sistema externo a la interfaz que usa el hotel internamente.
+                </p>
+                <div class="adapter-card">
+                    <div class="adapter-icon">🌐</div>
+                    <div class="adapter-info">
+                        <h4>Booking.com Adapter</h4>
+                        <p>Traduce reservas de Booking.com al modelo interno de Reserva</p>
+                    </div>
+                    <div class="adapter-status">
+                        <span class="chip chip-DISPONIBLE">Simulado</span>
+                    </div>
+                    <button class="btn btn-outline btn-sm" onclick="simAdapter('Booking.com')">Simular sincronización</button>
+                </div>
+                <div class="adapter-card">
+                    <div class="adapter-icon">✈️</div>
+                    <div class="adapter-info">
+                        <h4>Expedia Adapter</h4>
+                        <p>Integración con el sistema de reservas de Expedia</p>
+                    </div>
+                    <div class="adapter-status">
+                        <span class="chip chip-DISPONIBLE">Simulado</span>
+                    </div>
+                    <button class="btn btn-outline btn-sm" onclick="simAdapter('Expedia')">Simular sincronización</button>
+                </div>
+                <div class="adapter-card">
+                    <div class="adapter-icon">💳</div>
+                    <div class="adapter-info">
+                        <h4>MercadoPago Adapter</h4>
+                        <p>Adapta el sistema de pagos de MercadoPago a la interfaz de pago interna</p>
+                    </div>
+                    <div class="adapter-status">
+                        <span class="chip chip-DISPONIBLE">Simulado</span>
+                    </div>
+                    <button class="btn btn-outline btn-sm" onclick="simAdapter('MercadoPago')">Simular pago</button>
+                </div>
+                <div style="margin-top:16px;padding:14px;background:var(--warm);border-radius:8px;font-size:12px;color:var(--muted)">
+                    <strong>En Java:</strong> Cada adaptador implementa la interfaz <code>ServicioExternoAdapter</code> y tiene una referencia al sistema externo concreto (Booking API, Expedia SDK, etc.). El hotel solo conoce la interfaz.
+                </div>
+            </div>
+
+        </div><!-- /content -->
+    </main>
+</div>
+
+<!-- ── MODALES ─────────────────────────────────────────────────────── -->
+
+<!-- Nueva Reserva -->
+<div class="modal-overlay" id="modal-nueva-reserva">
+    <div class="modal">
+        <div class="modal-head">
+            <h3>Nueva Reserva <span class="pattern-tag">Builder</span></h3>
+            <button class="btn btn-outline btn-sm" onclick="closeModal('modal-nueva-reserva')">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Huésped</label>
+                <select id="nr-huesped"><option value="">Seleccionar huésped...</option></select>
+            </div>
+            <div class="form-group">
+                <label>Habitación (Factory)</label>
+                <select id="nr-habitacion"><option value="">Seleccionar habitación...</option></select>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Fecha inicio</label>
+                    <input type="date" id="nr-inicio">
+                </div>
+                <div class="form-group">
+                    <label>Fecha fin</label>
+                    <input type="date" id="nr-fin">
+                </div>
+            </div>
+            <div style="padding:10px;background:#f3e5f5;border-radius:8px;font-size:11px;color:#7b1fa2;margin-top:4px">
+                <strong>Observer:</strong> Al crear la reserva, el sistema notifica automáticamente a los observadores (email de confirmación, lista de espera, etc.)
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('modal-nueva-reserva')">Cancelar</button>
+            <button class="btn btn-primary" onclick="crearReserva()">Crear reserva</button>
+        </div>
+    </div>
+</div>
+
+<!-- Nueva Habitación -->
+<div class="modal-overlay" id="modal-nueva-hab">
+    <div class="modal">
+        <div class="modal-head">
+            <h3>Nueva Habitación <span class="pattern-tag">Factory</span></h3>
+            <button class="btn btn-outline btn-sm" onclick="closeModal('modal-nueva-hab')">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Número</label>
+                    <input type="number" id="nh-num" placeholder="101">
+                </div>
+                <div class="form-group">
+                    <label>Tipo (Factory)</label>
+                    <select id="nh-tipo">
+                        <option>SIMPLE</option>
+                        <option>DOBLE</option>
+                        <option>SUITE</option>
+                        <option>PRESIDENCIAL</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Estado inicial</label>
+                    <select id="nh-estado">
+                        <option>DISPONIBLE</option>
+                        <option>MANTENIMIENTO</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Precio base</label>
+                    <input type="number" id="nh-precio" placeholder="5000">
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('modal-nueva-hab')">Cancelar</button>
+            <button class="btn btn-primary" onclick="crearHabitacion()">Crear</button>
+        </div>
+    </div>
+</div>
+
+<!-- Nuevo Huésped -->
+<div class="modal-overlay" id="modal-nuevo-huesped">
+    <div class="modal">
+        <div class="modal-head">
+            <h3>Nuevo Huésped</h3>
+            <button class="btn btn-outline btn-sm" onclick="closeModal('modal-nuevo-huesped')">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Nombre completo</label>
+                <input type="text" id="nhu-nombre" placeholder="Juan Pérez">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="nhu-email" placeholder="juan@email.com">
+            </div>
+            <div class="form-group">
+                <label>Teléfono</label>
+                <input type="number" id="nhu-tel" placeholder="1112345678">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('modal-nuevo-huesped')">Cancelar</button>
+            <button class="btn btn-primary" onclick="crearHuesped()">Registrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Nueva Promoción -->
+<div class="modal-overlay" id="modal-nueva-promo">
+    <div class="modal">
+        <div class="modal-head">
+            <h3>Nueva Estrategia de Costo <span class="pattern-tag">Strategy</span></h3>
+            <button class="btn btn-outline btn-sm" onclick="closeModal('modal-nueva-promo')">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Nombre de la estrategia</label>
+                <input type="text" id="np-nombre" placeholder="Temporada alta, Descuento fidelidad...">
+            </div>
+            <div class="form-group">
+                <label>Descuento (%)</label>
+                <input type="number" id="np-desc" min="1" max="100" placeholder="15">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('modal-nueva-promo')">Cancelar</button>
+            <button class="btn btn-primary" onclick="crearPromocion()">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Cambiar Estado Reserva -->
+<div class="modal-overlay" id="modal-estado-reserva">
+    <div class="modal">
+        <div class="modal-head">
+            <h3>Cambiar Estado <span class="pattern-tag">State · Observer</span></h3>
+            <button class="btn btn-outline btn-sm" onclick="closeModal('modal-estado-reserva')">✕</button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size:13px;color:var(--muted);margin-bottom:16px">
+                El patrón State permite transiciones de estado controladas. Observer notifica automáticamente.
+            </p>
+            <div class="form-group">
+                <label>Nuevo estado</label>
+                <select id="er-estado">
+                    <option>PENDIENTE</option>
+                    <option>CONFIRMADA</option>
+                    <option>CANCELADA</option>
+                    <option>LISTA_ESPERA</option>
+                    <option>COMPLETADA</option>
+                </select>
+            </div>
+            <input type="hidden" id="er-id">
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('modal-estado-reserva')">Cancelar</button>
+            <button class="btn btn-primary" onclick="cambiarEstado()">Actualizar estado</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API = 'http://localhost:3001/api';
+
+    // ── NAVIGATION ───────────────────────────────────────────────────────────────
+    const titles = {
+      dashboard:'Dashboard', checkin:'Check-in', checkout:'Check-out',
+      reservas:'Reservas', habitaciones:'Habitaciones', huespedes:'Huéspedes',
+      servicios:'Servicios Extra', promociones:'Estrategias de Costo',
+      pagos:'Pagos', adapter:'Integraciones'
+    };
+
+    function navigate(page) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById('page-' + page).classList.add('active');
+      event.currentTarget.classList.add('active');
+      document.getElementById('topbar-title').textContent = titles[page] || page;
+      loaders[page] && loaders[page]();
+    }
+
+    // ── API HELPERS ──────────────────────────────────────────────────────────────
+    async function apiFetch(url, opts = {}) {
+      const res = await fetch(API + url, {
+        headers: { 'Content-Type': 'application/json' },
+        ...opts
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: res.statusText }));
+        throw new Error(err.error || res.statusText);
+      }
+      return res.json();
+    }
+
+    // ── TOAST ────────────────────────────────────────────────────────────────────
+    function toast(msg, type = 'info') {
+      const el = document.createElement('div');
+      el.className = `toast toast-${type}`;
+      el.textContent = msg;
+      document.getElementById('toasts').appendChild(el);
+      setTimeout(() => el.remove(), 3500);
+    }
+
+    // ── MODAL ────────────────────────────────────────────────────────────────────
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+    document.querySelectorAll('.modal-overlay').forEach(m => {
+      m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+    });
+
+    // ── LOADERS ──────────────────────────────────────────────────────────────────
+    const loaders = {
+      dashboard: loadDashboard,
+      reservas: loadReservas,
+      habitaciones: loadHabitaciones,
+      huespedes: loadHuespedes,
+      checkin: loadCheckin,
+      checkout: loadCheckout,
+      servicios: loadServicios,
+      promociones: loadPromociones,
+      pagos: loadPagos,
+    };
+
+    function chip(estado) {
+      return `<span class="chip chip-${estado}">${estado.replace('_',' ')}</span>`;
+    }
+
+    // DASHBOARD
+    async function loadDashboard() {
+      try {
+        const s = await apiFetch('/stats');
+        document.getElementById('s-reservas').textContent = s.total_reservas;
+        document.getElementById('s-disponibles').textContent = s.habitaciones_disponibles;
+        document.getElementById('s-ocupadas').textContent = s.habitaciones_ocupadas;
+        document.getElementById('s-huespedes').textContent = s.total_huespedes;
+        document.getElementById('s-ingresos').textContent = '$' + Number(s.ingresos_total).toLocaleString('es-AR');
+        document.getElementById('s-espera').textContent = s.lista_espera;
+        document.getElementById('api-status').textContent = '● Conectado';
+        document.getElementById('api-status').className = 'badge-status badge-success';
+
+        const reservas = await apiFetch('/reservas');
+        const tbody = document.getElementById('dash-reservas-body');
+        const recent = reservas.slice(0,8);
+        tbody.innerHTML = recent.length ? recent.map(r => `<tr>
+          <td>${r.nombre_huesped}</td>
+          <td>Hab. ${r.numero_habitacion} — ${r.tipo_habitacion}</td>
+          <td>${r.fecha_inicio}</td>
+          <td>${r.fecha_fin}</td>
+          <td>${chip(r.estado_reserva)}</td>
+        </tr>`).join('') : '<tr><td colspan="5" class="empty-state">Sin reservas aún</td></tr>';
+      } catch(e) {
+        document.getElementById('api-status').textContent = '● Sin conexión';
+        document.getElementById('api-status').className = 'badge-status badge-danger';
+      }
+    }
+
+    // RESERVAS
+    async function loadReservas() {
+      const filtro = document.getElementById('filtro-estado').value;
+      const data = await apiFetch('/reservas').catch(() => []);
+      const filtered = filtro ? data.filter(r => r.estado_reserva === filtro) : data;
+      const tbody = document.getElementById('reservas-body');
+      tbody.innerHTML = filtered.length ? filtered.map(r => `<tr>
+        <td><strong>#${r.id_reserva}</strong></td>
+        <td>${r.nombre_huesped}</td>
+        <td>Hab. ${r.numero_habitacion} <small style="color:var(--muted)">${r.tipo_habitacion}</small></td>
+        <td>${r.fecha_inicio}</td>
+        <td>${r.fecha_fin}</td>
+        <td>${chip(r.estado_reserva)}</td>
+        <td>
+          <button class="btn btn-outline btn-sm" onclick="abrirCambioEstado(${r.id_reserva},'${r.estado_reserva}')">Estado</button>
+          <button class="btn btn-danger btn-sm" onclick="eliminarReserva(${r.id_reserva})">✕</button>
+        </td>
+      </tr>`).join('') : '<tr><td colspan="7" class="empty-state">No hay reservas con este filtro</td></tr>';
+    }
+
+    async function crearReserva() {
+      const huesped_id = document.getElementById('nr-huesped').value;
+      const habitacion_id = document.getElementById('nr-habitacion').value;
+      const fecha_inicio = document.getElementById('nr-inicio').value;
+      const fecha_fin = document.getElementById('nr-fin').value;
+      if (!huesped_id || !habitacion_id || !fecha_inicio || !fecha_fin) return toast('Completá todos los campos', 'error');
+      try {
+        await apiFetch('/reservas', { method:'POST', body: JSON.stringify({fecha_inicio,fecha_fin,huesped_id,habitacion_id}) });
+        toast('Reserva creada. Observer notificado ✓', 'success');
+        closeModal('modal-nueva-reserva');
+        loadReservas();
+      } catch(e) { toast(e.message, 'error'); }
+    }
+
+    function abrirCambioEstado(id, estadoActual) {
+      document.getElementById('er-id').value = id;
+      document.getElementById('er-estado').value = estadoActual;
+      openModal('modal-estado-reserva');
+    }
+
+    async function cambiarEstado() {
+      const id = document.getElementById('er-id').value;
+      const estado = document.getElementById('er-estado').value;
+      try {
+        await apiFetch(`/reservas/${id}/estado`, { method:'PUT', body: JSON.stringify({estado}) });
+        toast(`Estado actualizado → ${estado}`, 'success');
+        closeModal('modal-estado-reserva');
+        loadReservas();
+      } catch(e) { toast(e.message, 'error'); }
+    }
+
+    async function eliminarReserva(id) {
+      if (!confirm('¿Eliminar reserva #' + id + '?')) return;
+      await apiFetch(`/reservas/${id}`, { method:'DELETE' });
+      toast('Reserva eliminada', 'info');
+      loadReservas();
+    }
+
+    // HABITACIONES
+    async function loadHabitaciones() {
+      const data = await apiFetch('/habitaciones').catch(() => []);
+      const tbody = document.getElementById('habitaciones-body');
+      tbody.innerHTML = data.length ? data.map(h => `<tr>
+        <td><strong>${h.numero_habitacion}</strong></td>
+        <td>${h.tipo_habitacion}</td>
+        <td>${chip(h.estado_habitacion)}</td>
+        <td>$${Number(h.precioBase_habitacion).toLocaleString('es-AR')}</td>
+        <td>
+          <button class="btn btn-danger btn-sm" onclick="eliminarHabitacion(${h.id_habitacion})">Eliminar</button>
+        </td>
+      </tr>`).join('') : '<tr><td colspan="5" class="empty-state">Sin habitaciones</td></tr>';
+    }
+
+    async function crearHabitacion() {
+      const num = document.getElementById('nh-num').value;
+      const tipo = document.getElementById('nh-tipo').value;
+      const estado = document.getElementById('nh-estado').value;
+      const precio = document.getElementById('nh-precio').value;
+      if (!num || !precio) return toast('Completá todos los campos', 'error');
+      try {
+        await apiFetch('/habitaciones', { method:'POST', body: JSON.stringify({numero_habitacion:num,tipo_habitacion:tipo,estado_habitacion:estado,precioBase_habitacion:precio}) });
+        toast('Habitación creada por Factory ✓', 'success');
+        closeModal('modal-nueva-hab');
+        loadHabitaciones();
+      } catch(e) { toast(e.message, 'error'); }
+    }
+
+    async function eliminarHabitacion(id) {
+      if (!confirm('¿Eliminar habitación?')) return;
+      await apiFetch(`/habitaciones/${id}`, { method:'DELETE' });
+      toast('Habitación eliminada', 'info');
+      loadHabitaciones();
+    }
+
+    // HUÉSPEDES
+    async function loadHuespedes() {
+      const data = await apiFetch('/huespedes').catch(() => []);
+      const tbody = document.getElementById('huespedes-body');
+      tbody.innerHTML = data.length ? data.map(h => `<tr>
+        <td><strong>${h.nombre_huesped}</strong></td>
+        <td>${h.email_huesped}</td>
+        <td>${h.telefono_huesped}</td>
+        <td><button class="btn btn-danger btn-sm" onclick="eliminarHuesped(${h.id_huesped})">Eliminar</button></td>
+      </tr>`).join('') : '<tr><td colspan="4" class="empty-state">Sin huéspedes</td></tr>';
+    }
+
+    async function crearHuesped() {
+      const nombre = document.getElementById('nhu-nombre').value;
+      const email = document.getElementById('nhu-email').value;
+      const tel = document.getElementById('nhu-tel').value;
+      if (!nombre || !email || !tel) return toast('Completá todos los campos', 'error');
+      try {
+        await apiFetch('/huespedes', { method:'POST', body: JSON.stringify({nombre_huesped:nombre,email_huesped:email,telefono_huesped:tel}) });
+        toast('Huésped registrado ✓', 'success');
+        closeModal('modal-nuevo-huesped');
+        loadHuespedes();
+      } catch(e) { toast(e.message, 'error'); }
+    }
+
+    async function eliminarHuesped(id) {
+      if (!confirm('¿Eliminar huésped?')) return;
+      await apiFetch(`/huespedes/${id}`, { method:'DELETE' });
+      toast('Huésped eliminado', 'info');
+      loadHuespedes();
+    }
+
+    // CHECK-IN
+    async function loadCheckin() {
+      const reservas = await apiFetch('/reservas').catch(() => []);
+      const disponibles = reservas.filter(r => r.estado_reserva === 'PENDIENTE' || r.estado_reserva === 'CONFIRMADA');
+      const sel = document.getElementById('ci-reserva');
+      sel.innerHTML = '<option value="">Seleccionar reserva...</option>' +
+        disponibles.map(r => `<option value="${r.id_reserva}">${r.nombre_huesped} — Hab.${r.numero_habitacion} (${r.fecha_inicio}→${r.fecha_fin})</option>`).join('');
+      sel.onchange = () => {
+        const r = disponibles.find(x => x.id_reserva == sel.value);
+        const info = document.getElementById('ci-info');
+        if (r) {
+          info.style.display = 'block';
+          info.innerHTML = `<strong>Huésped:</strong> ${r.nombre_huesped}<br>
+            <strong>Habitación:</strong> ${r.numero_habitacion} — ${r.tipo_habitacion}<br>
+            <strong>Precio base:</strong> $${Number(r.precioBase_habitacion).toLocaleString('es-AR')}/noche<br>
+            <strong>Estado actual:</strong> ${r.estado_reserva}`;
+          document.getElementById('ci-fecha-in').value = r.fecha_inicio;
+          document.getElementById('ci-fecha-out').value = r.fecha_fin;
+        } else { info.style.display = 'none'; }
+      };
+    }
+
+    async function doCheckin() {
+      const reserva_id = document.getElementById('ci-reserva').value;
+      const fechaCheckIn = document.getElementById('ci-fecha-in').value;
+      const fechaCheckOut = document.getElementById('ci-fecha-out').value;
+      if (!reserva_id || !fechaCheckIn || !fechaCheckOut) return toast('Completá todos los campos', 'error');
+      try {
+        await apiFetch('/checkin', { method:'POST', body: JSON.stringify({reserva_id,fechaCheckIn,fechaCheckOut}) });
+        toast('Check-in realizado. Habitación ahora OCUPADA ✓', 'success');
+        loadCheckin();
+      } catch(e) { toast(e.message, 'error'); }
+    }
+
+    // CHECK-OUT
+    async function loadCheckout() {
+      const estadias = await apiFetch('/estadias').catch(() => []);
+      const activas = estadias.filter(e => !e.id_factura);
+      const sel = document.getElementById('co-estadia');
+      sel.innerHTML = '<option value="">Seleccionar estadía...</option>' +
+        activas.map(e => `<option value="${e.id_estadia}">${e.nombre_huesped} — Hab.${e.numero_habitacion} (${e.fechaCheckIn}→${e.fechaCheckOut})</option>`).join('');
+    }
+
+    async function loadCheckoutInfo() {
+      const id = document.getElementById('co-estadia').value;
+      if (!id) return;
+      const estadias = await apiFetch('/estadias').catch(() => []);
+      const e = estadias.find(x => x.id_estadia == id);
+      const info = document.getElementById('co-info');
+      if (e) {
+        info.style.display = 'block';
+        info.innerHTML = `<strong>Huésped:</strong> ${e.nombre_huesped}<br>
+          <strong>Habitación:</strong> ${e.numero_habitacion} — ${e.tipo_habitacion}<br>
+          <strong>Estadía:</strong> ${e.fechaCheckIn} → ${e.fechaCheckOut}`;
+      }
+    }
+
+    async function doCheckout() {
+      const estadia_id = document.getElementById('co-estadia').value;
+      const total = document.getElementById('co-total').value || null;
+      if (!estadia_id) return toast('Seleccioná una estadía', 'error');
+      try {
+        const res = await apiFetch('/checkout', { method:'POST', body: JSON.stringify({estadia_id,total}) });
+        toast(`Check-out realizado. Factura: $${Number(res.total).toLocaleString('es-AR')} ✓`, 'success');
+        document.getElementById('co-info').style.display = 'none';
+        loadCheckout();
+      } catch(e) { toast(e.message, 'error'); }
+    }
+
+    // SERVICIOS (Decorator)
+    async function loadServicios() {
+      const estadias = await apiFetch('/estadias').catch(() => []);
+      const sel = document.getElementById('dec-estadia');
+      sel.innerHTML = '<option value="">Seleccionar estadía...</option>' +
+        estadias.map(e => `<option value="${e.id_estadia}">${e.nombre_huesped} — Hab.${e.numero_habitacion}</option>`).join('');
+      updateDecTotal();
+    }
+
+    let selectedServices = {};
+    function toggleService(el, name, price) {
+      el.classList.toggle('selected');
+      if (el.classList.contains('selected')) selectedServices[name] = price;
+      else delete selectedServices[name];
+      updateDecTotal();
+    }
+
+    function updateDecTotal() {
+      const total = Object.values(selectedServices).reduce((a,b) => a+b, 0);
+      const div = document.getElementById('dec-total');
+      const names = Object.keys(selectedServices);
+      if (names.length) {
+        div.style.display = 'block';
+        div.innerHTML = `<strong>Servicios seleccionados:</strong> ${names.join(' → ')}<br>
+          <strong>Costo adicional total: $${total.toLocaleString('es-AR')}</strong><br>
+          <small style="color:var(--muted)">Patron Decorator: EstadíaBase → ${names.join('Decorator → ')}Decorator</small>`;
+      } else {
+        div.style.display = 'none';
+      }
+    }
+
+    // PROMOCIONES
+    async function loadPromociones() {
+      const data = await apiFetch('/promociones').catch(() => []);
+      const tbody = document.getElementById('promociones-body');
+      tbody.innerHTML = data.length ? data.map(p => {
+        const precio_final = 10000 - (10000 * p.descuento / 100);
+        return `<tr>
+          <td><strong>${p.nombre_promocion}</strong></td>
+          <td><span class="chip chip-CONFIRMADA">${p.descuento}% OFF</span></td>
+          <td>$10.000 → <strong>$${precio_final.toLocaleString('es-AR')}</strong></td>
+          <td><button class="btn btn-danger btn-sm" onclick="eliminarPromo(${p.id_promocion})">Eliminar</button></td>
+        </tr>`;
+      }).join('') : '<tr><td colspan="4" class="empty-state">Sin estrategias configuradas</td></tr>';
+    }
+
+    async function crearPromocion() {
+      const nombre = document.getElementById('np-nombre').value;
+      const descuento = document.getElementById('np-desc').value;
+      if (!nombre || !descuento) return toast('Completá todos los campos', 'error');
+      try {
+        await apiFetch('/promociones', { method:'POST', body: JSON.stringify({nombre_promocion:nombre,descuento}) });
+        toast('Estrategia de costo creada ✓', 'success');
+        closeModal('modal-nueva-promo');
+        loadPromociones();
+      } catch(e) { toast(e.message, 'error'); }
+    }
+
+    async function eliminarPromo(id) {
+      await apiFetch(`/promociones/${id}`, { method:'DELETE' });
+      toast('Estrategia eliminada', 'info');
+      loadPromociones();
+    }
+
+    // PAGOS
+    async function loadPagos() {
+      const data = await apiFetch('/facturas').catch(() => []);
+      const tbody = document.getElementById('facturas-body');
+      tbody.innerHTML = data.length ? data.map(f => `<tr>
+        <td>#${f.id_factura}</td>
+        <td>${f.nombre_huesped}</td>
+        <td>Hab. ${f.numero_habitacion}</td>
+        <td>${f.fechaCheckIn}</td>
+        <td>${f.fechaCheckOut}</td>
+        <td><strong>$${Number(f.total).toLocaleString('es-AR')}</strong></td>
+      </tr>`).join('') : '<tr><td colspan="6" class="empty-state">Sin facturas aún</td></tr>';
+    }
+
+    // ADAPTER
+    function simAdapter(name) {
+      toast(`Adapter ${name}: sincronización simulada → 3 reservas importadas ✓`, 'success');
+    }
+
+    // ── INIT ─────────────────────────────────────────────────────────────────────
+    async function init() {
+      // Pre-cargar selects para modales
+      const loadSelects = async () => {
+        const huespedes = await apiFetch('/huespedes').catch(() => []);
+        const habitaciones = await apiFetch('/habitaciones').catch(() => []);
+        const hsEl = document.getElementById('nr-huesped');
+        hsEl.innerHTML = '<option value="">Seleccionar huésped...</option>' +
+          huespedes.map(h => `<option value="${h.id_huesped}">${h.nombre_huesped}</option>`).join('');
+        const habEl = document.getElementById('nr-habitacion');
+        habEl.innerHTML = '<option value="">Seleccionar habitación...</option>' +
+          habitaciones.filter(h => h.estado_habitacion === 'DISPONIBLE')
+            .map(h => `<option value="${h.id_habitacion}">Hab. ${h.numero_habitacion} — ${h.tipo_habitacion} ($${h.precioBase_habitacion})</option>`).join('');
+      };
+
+      document.getElementById('modal-nueva-reserva').addEventListener('click', (e) => {
+        if (e.target.closest('button[onclick="openModal(\'modal-nueva-reserva\')"]')) loadSelects();
+      });
+
+      // Interceptar el botón de nueva reserva
+      const btnNR = document.querySelector('[onclick="openModal(\'modal-nueva-reserva\')"]');
+      if (btnNR) {
+        btnNR.addEventListener('click', loadSelects);
+      }
+
+      loadDashboard();
+    }
+
+    init();
+</script>
+</body>
+</html>
