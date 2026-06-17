@@ -1,4 +1,4 @@
-package com.HotelReservas.Adapter;
+package com.HotelReservas.adapter;
 
 public class PagoAdapter implements ServicioPagoexterno {
 

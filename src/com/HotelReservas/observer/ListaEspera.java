@@ -22,4 +22,7 @@ public class ListaEspera {
             observador.actualizar(habitacion);
         }
     }
+
+    public void publicarAviso(String s) {
+    }
 }

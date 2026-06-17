@@ -1,6 +1,5 @@
-package com.HotelReservas.Adapter;
+package com.HotelReservas.adapter;
 
-// Interfaz que el sistema espera para enviar emails
 public interface ServicioEmail {
     void enviarConfirmacion(String destinatario, String mensaje);
 }

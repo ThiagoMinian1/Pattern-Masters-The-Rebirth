@@ -1,4 +1,4 @@
-package com.HotelReservas.Adapter;
+package com.HotelReservas.adapter;
 
 // Simula un servicio externo de email con interfaz incompatible
 public class ApiEmailExterno {

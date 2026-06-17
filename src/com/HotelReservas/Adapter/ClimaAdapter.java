@@ -1,4 +1,4 @@
-package com.HotelReservas.Adapter;
+package com.HotelReservas.adapter;
 
 public class ClimaAdapter implements ServicioClima {
 

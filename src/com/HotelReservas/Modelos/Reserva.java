@@ -4,10 +4,10 @@ import com.HotelReservas.observer.ListaEspera;
 import com.HotelReservas.state.EstadoReserva;
 import com.HotelReservas.strategy.EstrategiaPrecio;
 
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 import com.HotelReservas.state.EstadoPendiente;
-import com.HotelReservas.strategy.EstrategiaPrecio;
 import com.HotelReservas.strategy.EstrategiaEstandar;
 
 
@@ -15,7 +15,7 @@ public class Reserva {
     private int id;
     private Huesped huesped;
     private Habitacion habitacion;
-    private String fechaIngreso;
+    private LocalDate fechaIngreso;
     private String fechaEgreso;
     private EstadoReserva estadoActual;
     private ServicioExtra[] serviciosExtra;
@@ -23,7 +23,7 @@ public class Reserva {
     private EstrategiaPrecio estrategia;
 
     public Reserva(int id, Huesped huesped, Habitacion habitacion,
-                   String fechaIngreso, String fechaEgreso) {
+                   LocalDate fechaIngreso, String fechaEgreso) {
         this.id = id;
         this.huesped = huesped;
         this.habitacion = habitacion;
@@ -35,10 +35,13 @@ public class Reserva {
         this.estrategia = new EstrategiaEstandar();
     }
 
+    public Reserva(int id, Huesped huesped, Habitacion habitacion, LocalDate fechaIngreso, LocalDate fechaEgreso) {
+    }
+
     public int getId() { return id; }
     public Huesped getHuesped() { return huesped; }
     public Habitacion getHabitacion() { return habitacion; }
-    public String getFechaIngreso() { return fechaIngreso; }
+    public LocalDate getFechaIngreso() { return fechaIngreso; }
     public String getFechaEgreso() { return fechaEgreso; }
     public EstadoReserva getEstadoActual() { return estadoActual; }
     public String getEstado() { return estadoActual.getNombre(); }
@@ -46,13 +49,13 @@ public class Reserva {
     public int getCantidadServicios() { return cantidadServicios; }
 
     public void setEstadoActual(EstadoReserva estado) { this.estadoActual = estado; }
-    public void setFechaIngreso(String fechaIngreso) { this.fechaIngreso = fechaIngreso; }
+    public void setFechaIngreso(LocalDate fechaIngreso) { this.fechaIngreso = fechaIngreso; }
     public void setFechaEgreso(String fechaEgreso) { this.fechaEgreso = fechaEgreso; }
     public void setHabitacion(Habitacion habitacion) { this.habitacion = habitacion; }
 
     public void confirmar() {
         estadoActual.confirmar(this);
-        habitacion.ocupar(fechaIngreso, fechaEgreso);
+        habitacion.ocupar(fechaIngreso, LocalDate.parse(fechaEgreso));
     }
 
     public void cancelar() {
@@ -75,7 +78,7 @@ public class Reserva {
     }
 
     public double calcularCostoTotal() {
-        long noches = ChronoUnit.DAYS.between(fechaIngreso, fechaEgreso);
+        long noches = ChronoUnit.DAYS.between(fechaIngreso, LocalDate.parse(fechaEgreso));
         double totalHabitacion = estrategia.calcularPrecio(habitacion.getPrecioPorNoche(), noches);
         double totalServicios = 0;
         for (int i = 0; i < cantidadServicios; i++) {
@@ -92,4 +95,6 @@ public class Reserva {
     }
 
 
+    public void setEstrategia(EstrategiaPrecio estrategia) {
+    }
 }

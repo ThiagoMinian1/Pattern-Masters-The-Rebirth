@@ -1,4 +1,4 @@
-package com.HotelReservas.Adapter;
+package com.HotelReservas.adapter;
 
 // Simula una API externa de clima con interfaz incompatible
 public class ApiClimaExterno {
