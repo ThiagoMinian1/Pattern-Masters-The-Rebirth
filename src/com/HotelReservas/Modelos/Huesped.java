@@ -33,17 +33,15 @@ public class Huesped {
     public void setCategoria(String categoria) { this.categoria = categoria; }
 
     public void setEmail(String email) {
-        if (email == null || !email.contains("@") || !email.contains(".")) {
-            System.out.println("Error: el email '" + email + "' no es válido. Debe contener '@' y un dominio (ej: usuario@gmail.com).");
-            return;
+        if (email == null || !email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+            throw new IllegalArgumentException("Email inválido");
         }
         this.email = email;
     }
 
     public void setTelefono(String telefono) {
         if (telefono == null || !telefono.matches("\\d{10,11}")) {
-            System.out.println("Error: el teléfono '" + telefono + "' no es válido. Debe tener exactamente 10 u 11 dígitos numéricos.");
-            return;
+            throw new IllegalArgumentException("Teléfono inválido");
         }
         this.telefono = telefono;
     }
