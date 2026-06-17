@@ -238,6 +238,10 @@ app.post('/api/checkout', async (req, res) => {
   } finally {
     conn.release();
   }
+  await conn.query(
+    'INSERT INTO factura (id_estadia, total, metodo_pago) VALUES (?,?,?)',
+    [estadia_id, montoFinal, metodo]
+  );
 });
 
 // ─── FACTURAS (Template Method: pagos) ───────────────────────────────────────

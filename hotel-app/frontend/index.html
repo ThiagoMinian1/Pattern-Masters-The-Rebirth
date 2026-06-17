@@ -1063,6 +1063,14 @@
             <button class="btn btn-outline" onclick="closeModal('modal-estado-reserva')">Cancelar</button>
             <button class="btn btn-primary" onclick="cambiarEstado()">Actualizar estado</button>
         </div>
+        <div class="form-group">
+            <label>Método de pago</label>
+            <select id="co-metodo">
+                <option value="EFECTIVO">Efectivo</option>
+                <option value="TARJETA">Tarjeta</option>
+                <option value="TRANSFERENCIA">Transferencia</option>
+            </select>
+        </div>
     </div>
 </div>
 
@@ -1076,6 +1084,8 @@
       servicios:'Servicios Extra', promociones:'Estrategias de Costo',
       pagos:'Pagos', adapter:'Integraciones'
     };
+
+
 
     function navigate(page) {
         document.querySelectorAll('.page').forEach(p =>
@@ -1358,6 +1368,8 @@
         console.log("ESTADIAS:", estadias);
 
         const e = estadias.find(x => x.id_estadia == id);
+
+        console.log("ESTADIA ENCONTRADA:");
         console.log(JSON.stringify(e, null, 2));
 
         if (!e) {
