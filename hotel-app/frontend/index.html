@@ -955,11 +955,11 @@
                 </div>
                 <div class="form-group">
                     <label>Tipo (Factory)</label>
-                    <select id="nh-tipo">
-                        <option>SIMPLE</option>
-                        <option>DOBLE</option>
-                        <option>SUITE</option>
-                        <option>PRESIDENCIAL</option>
+                    <select id="nh-tipo" onchange="actualizarPrecioHabitacion()">
+                        <option value="SIMPLE">SIMPLE</option>
+                        <option value="DOBLE">DOBLE</option>
+                        <option value="SUITE">SUITE</option>
+                        <option value="PRESIDENCIAL">PRESIDENCIAL</option>
                     </select>
                 </div>
             </div>
@@ -1442,6 +1442,25 @@
     // ── INIT ─────────────────────────────────────────────────────────────────────
     async function init() {
       // Pre-cargar selects para modales
+      function actualizarPrecioHabitacion() {
+        const tipo = document.getElementById('nh-tipo').value;
+        const precio = document.getElementById('nh-precio');
+
+        switch(tipo) {
+            case 'SIMPLE':
+                precio.value = 5000;
+                break;
+            case 'DOBLE':
+                precio.value = 8000;
+                break;
+            case 'SUITE':
+                precio.value = 12000;
+                break;
+            case 'PRESIDENCIAL':
+                precio.value = 20000;
+                break;
+        }
+    }
       const loadSelects = async () => {
         const huespedes = await apiFetch('/huespedes').catch(() => []);
         const habitaciones = await apiFetch('/habitaciones').catch(() => []);
