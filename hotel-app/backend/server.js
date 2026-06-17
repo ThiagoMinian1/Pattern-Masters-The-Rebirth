@@ -63,12 +63,63 @@ app.get('/api/huespedes', async (req, res) => {
 });
 
 app.post('/api/huespedes', async (req, res) => {
-  const { nombre_huesped, email_huesped, telefono_huesped } = req.body;
-  const [result] = await pool.query(
-    'INSERT INTO huesped (nombre_huesped, email_huesped, telefono_huesped) VALUES (?,?,?)',
-    [nombre_huesped, email_huesped, telefono_huesped]
-  );
-  res.json({ id: result.insertId });
+  try {
+    const { nombre_huesped, email_huesped, telefono_huesped } = req.body;
+
+    if (!nombre_huesped || nombre_huesped.trim().length < 3) {
+      return res.status(400).json({
+        error: 'El nombre debe tener al menos 3 caracteres'
+      });
+    }
+
+    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
+    if (!emailRegex.test(email_huesped)) {
+      return res.status(400).json({
+        error: 'Email inválido'
+      });
+    }
+
+    const telefonoRegex = /^\d{10,11}$/;
+
+    if (!telefonoRegex.test(telefono_huesped)) {
+      return res.status(400).json({
+        error: 'El teléfono debe tener 10 u 11 dígitos'
+      });
+    }
+
+    const [existe] = await pool.query(
+      'SELECT id_huesped FROM huesped WHERE email_huesped=?',
+      [email_huesped]
+    );
+
+    if (existe.length > 0) {
+      return res.status(400).json({
+        error: 'Ya existe un huésped con ese email'
+      });
+    }
+
+    const [result] = await pool.query(
+      'INSERT INTO huesped (nombre_huesped, email_huesped, telefono_huesped) VALUES (?,?,?)',
+      [
+        nombre_huesped.trim(),
+        email_huesped.trim(),
+        telefono_huesped.trim()
+      ]
+    );
+
+    res.json({
+      ok: true,
+      id: result.insertId
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: 'Error al crear huésped'
+    });
+  }
 });
 
 app.delete('/api/huespedes/:id', async (req, res) => {
@@ -225,6 +276,16 @@ app.get('/api/stats', async (req, res) => {
   const [[{ ingresos_total }]] = await pool.query('SELECT COALESCE(SUM(total),0) as ingresos_total FROM factura');
   const [[{ lista_espera }]] = await pool.query("SELECT COUNT(*) as lista_espera FROM reserva WHERE estado_reserva='LISTA_ESPERA'");
   res.json({ total_reservas, habitaciones_disponibles, habitaciones_ocupadas, total_huespedes, ingresos_total, lista_espera });
+
+  app.use((err, req, res, next) => {
+     console.error(err);
+
+     res.status(500).json({
+       error: 'Error interno del servidor'
+     });
+  });
+
+
 });
 
 const PORT = process.env.PORT || 3001;
