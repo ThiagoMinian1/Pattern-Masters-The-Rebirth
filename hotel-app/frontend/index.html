@@ -973,7 +973,7 @@
                 </div>
                 <div class="form-group">
                     <label>Precio base</label>
-                    <input type="number" id="nh-precio" placeholder="5000">
+                    <input type="number" id="nh-precio" readonly>
                 </div>
             </div>
         </div>
@@ -1078,12 +1078,26 @@
     };
 
     function navigate(page) {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      document.getElementById('page-' + page).classList.add('active');
-      event.currentTarget.classList.add('active');
-      document.getElementById('topbar-title').textContent = titles[page] || page;
-      loaders[page] && loaders[page]();
+        document.querySelectorAll('.page').forEach(p =>
+            p.classList.remove('active')
+        );
+
+        document.querySelectorAll('.nav-item').forEach(n =>
+            n.classList.remove('active')
+        );
+
+        document.getElementById('page-' + page).classList.add('active');
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            if (item.getAttribute('onclick') === `navigate('${page}')`) {
+                item.classList.add('active');
+            }
+        });
+
+        document.getElementById('topbar-title').textContent =
+            titles[page] || page;
+
+        if (loaders[page]) loaders[page]();
     }
 
     // ── API HELPERS ──────────────────────────────────────────────────────────────
@@ -1151,8 +1165,8 @@
         tbody.innerHTML = recent.length ? recent.map(r => `<tr>
           <td>${r.nombre_huesped}</td>
           <td>Hab. ${r.numero_habitacion} — ${r.tipo_habitacion}</td>
-          <td>${r.fecha_inicio}</td>
-          <td>${r.fecha_fin}</td>
+          <td>${r.fecha_inicio.split('T')[0]}</td>
+          <td>${r.fecha_fin.split('T')[0]}</td>
           <td>${chip(r.estado_reserva)}</td>
         </tr>`).join('') : '<tr><td colspan="5" class="empty-state">Sin reservas aún</td></tr>';
       } catch(e) {
@@ -1303,8 +1317,11 @@
             <strong>Habitación:</strong> ${r.numero_habitacion} — ${r.tipo_habitacion}<br>
             <strong>Precio base:</strong> $${Number(r.precioBase_habitacion).toLocaleString('es-AR')}/noche<br>
             <strong>Estado actual:</strong> ${r.estado_reserva}`;
-          document.getElementById('ci-fecha-in').value = r.fecha_inicio;
-          document.getElementById('ci-fecha-out').value = r.fecha_fin;
+          document.getElementById('ci-fecha-in').value =
+            new Date(r.fecha_inicio).toISOString().split('T')[0];
+
+          document.getElementById('ci-fecha-out').value =
+            new Date(r.fecha_fin).toISOString().split('T')[0];
         } else { info.style.display = 'none'; }
       };
     }
@@ -1331,17 +1348,39 @@
     }
 
     async function loadCheckoutInfo() {
-      const id = document.getElementById('co-estadia').value;
-      if (!id) return;
-      const estadias = await apiFetch('/estadias').catch(() => []);
-      const e = estadias.find(x => x.id_estadia == id);
-      const info = document.getElementById('co-info');
-      if (e) {
-        info.style.display = 'block';
-        info.innerHTML = `<strong>Huésped:</strong> ${e.nombre_huesped}<br>
-          <strong>Habitación:</strong> ${e.numero_habitacion} — ${e.tipo_habitacion}<br>
-          <strong>Estadía:</strong> ${e.fechaCheckIn} → ${e.fechaCheckOut}`;
-      }
+        const id = document.getElementById('co-estadia').value;
+
+        console.log("ID seleccionado:", id);
+
+        if (!id) return;
+
+        const estadias = await apiFetch('/estadias').catch(() => []);
+        console.log("ESTADIAS:", estadias);
+
+        const e = estadias.find(x => x.id_estadia == id);
+        console.log(JSON.stringify(e, null, 2));
+
+        if (!e) {
+            toast("No se encontró la estadía", "error");
+            return;
+        }
+
+        const checkIn = new Date(e.fechaCheckIn);
+        const checkOut = new Date(e.fechaCheckOut);
+
+        console.log("CHECKIN:", checkIn);
+        console.log("CHECKOUT:", checkOut);
+
+        const noches = Math.ceil(
+            (checkOut - checkIn) / (1000 * 60 * 60 * 24)
+        );
+
+        console.log("NOCHES:", noches);
+        console.log("PRECIO:", e.precioBase_habitacion);
+
+        const total = noches * Number(e.precioBase_habitacion);
+
+        document.getElementById('co-total').value = total;
     }
 
     async function doCheckout() {
@@ -1440,27 +1479,21 @@
     }
 
     // ── INIT ─────────────────────────────────────────────────────────────────────
-    async function init() {
-      // Pre-cargar selects para modales
-      function actualizarPrecioHabitacion() {
-        const tipo = document.getElementById('nh-tipo').value;
-        const precio = document.getElementById('nh-precio');
+    function actualizarPrecioHabitacion() {
+        const tipo = document.getElementById("nh-tipo").value;
+        const precio = document.getElementById("nh-precio");
 
-        switch(tipo) {
-            case 'SIMPLE':
-                precio.value = 5000;
-                break;
-            case 'DOBLE':
-                precio.value = 8000;
-                break;
-            case 'SUITE':
-                precio.value = 12000;
-                break;
-            case 'PRESIDENCIAL':
-                precio.value = 20000;
-                break;
-        }
+        const precios = {
+            SIMPLE: 5000,
+            DOBLE: 8000,
+            SUITE: 12000,
+            PRESIDENCIAL: 20000
+        };
+
+        precio.value = precios[tipo];
     }
+
+    async function init() {
       const loadSelects = async () => {
         const huespedes = await apiFetch('/huespedes').catch(() => []);
         const habitaciones = await apiFetch('/habitaciones').catch(() => []);
@@ -1482,9 +1515,10 @@
       if (btnNR) {
         btnNR.addEventListener('click', loadSelects);
       }
-
+      actualizarPrecioHabitacion();
       loadDashboard();
     }
+
 
     init();
 </script>

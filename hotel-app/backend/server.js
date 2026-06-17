@@ -164,8 +164,14 @@ app.delete('/api/reservas/:id', async (req, res) => {
 // ─── ESTADÍAS (Facade: Check-in / Check-out) ──────────────────────────────────
 app.get('/api/estadias', async (req, res) => {
   const [rows] = await pool.query(`
-    SELECT e.*, r.huesped_id, h.nombre_huesped, hab.numero_habitacion, hab.tipo_habitacion,
-           f.id_factura, f.total
+    SELECT e.*,
+           r.huesped_id,
+           h.nombre_huesped,
+           hab.numero_habitacion,
+           hab.tipo_habitacion,
+           hab.precioBase_habitacion,
+           f.id_factura,
+           f.total
     FROM estadia e
     JOIN reserva r ON e.reserva_id = r.id_reserva
     JOIN huesped h ON r.huesped_id = h.id_huesped
@@ -173,6 +179,7 @@ app.get('/api/estadias', async (req, res) => {
     LEFT JOIN factura f ON f.id_estadia = e.id_estadia
     ORDER BY e.fechaCheckIn DESC
   `);
+
   res.json(rows);
 });
 
