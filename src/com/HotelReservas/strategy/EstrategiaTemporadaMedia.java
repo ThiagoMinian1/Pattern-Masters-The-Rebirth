@@ -1,16 +1,14 @@
 package com.HotelReservas.strategy;
- 
+
 public class EstrategiaTemporadaMedia implements EstrategiaPrecio {
- 
-   private static final double DESCUENTO = 0.15;
- 
-   @Override
-   public double calcularPrecio(double precioPorNoche, long cantidadNoches) {
-       return precioPorNoche * cantidadNoches * (1 - DESCUENTO);
-   }
- 
-   @Override
-   public String getNombre() {
-       return "Temporada Media (15% descuento)";
-   }
+
+    @Override
+    public double calcularPrecio(double precioPorNoche, long cantidadNoches) {
+        return precioPorNoche * cantidadNoches;
+    }
+
+    @Override
+    public String getNombre() {
+        return "Temporada Media (precio base)";
+    }
 }

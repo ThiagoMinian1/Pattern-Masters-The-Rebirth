@@ -18,8 +18,6 @@ public class EstadoActivo implements EstadoReserva {
     @Override
     public void checkOut(Reserva reserva) {
         System.out.println("Check-out realizado. Reserva finalizada.");
-        reserva.getHabitacion().setDisponible(true);
-        reserva.getHuesped().agregarEstadia(reserva.toString());
         reserva.setEstadoActual(new EstadoFinalizado());
     }
     @Override

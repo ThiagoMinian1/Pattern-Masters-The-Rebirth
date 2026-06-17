@@ -33,7 +33,8 @@ public class Huesped {
     }
 
     public void mostrarHistorial() {
-        System.out.println(nombre + " ha tenido " + historialEstadias.size() + " estadía:");
+        String palabra = historialEstadias.size() == 1 ? "estadía" : "estadías";
+        System.out.println(nombre + " ha tenido " + historialEstadias.size() + " " + palabra + ":");
         for (int i = 0; i < historialEstadias.size(); i++) {
             System.out.println("  " + (i + 1) + ". " + historialEstadias.get(i));
         }

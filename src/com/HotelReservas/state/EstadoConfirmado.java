@@ -9,7 +9,7 @@ public class EstadoConfirmado implements EstadoReserva {
     }
     @Override
     public void cancelar(Reserva reserva) {
-        System.out.println("Reserva" + reserva.getId() + " cancelada.");
+        System.out.println("Reserva #" + reserva.getId() + " cancelada.");
         reserva.setEstadoActual(new EstadoCancelado());
     }
     @Override

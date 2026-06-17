@@ -1,4 +1,5 @@
 package com.HotelReservas.Modelos;
+import java.time.LocalDate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,10 +34,10 @@ public class Hotel {
         return null;
     }
 
-    public List<Habitacion> getHabitacionesDisponibles() {
+    public List<Habitacion> getHabitacionesDisponibles(LocalDate desde, LocalDate hasta) {
         List<Habitacion> disponibles = new ArrayList<>();
         for (Habitacion h : habitaciones) {
-            if (h.isDisponible()) disponibles.add(h);
+            if (h.estaDisponible(desde, hasta)) disponibles.add(h);
         }
         return disponibles;
     }

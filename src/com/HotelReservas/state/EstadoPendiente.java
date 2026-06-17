@@ -5,12 +5,12 @@ import com.HotelReservas.Modelos.Reserva;
 public class EstadoPendiente implements EstadoReserva {
     @Override
     public void confirmar(Reserva reserva) {
-        System.out.println("Reserva" + reserva.getId() + " confirmada.");
+        System.out.println("Reserva #" + reserva.getId() + " confirmada.");
         reserva.setEstadoActual(new EstadoConfirmado());
     }
     @Override
     public void cancelar(Reserva reserva) {
-        System.out.println("Reserva" + reserva.getId() + " cancelada.");
+        System.out.println("Reserva #" + reserva.getId() + " cancelada.");
         reserva.setEstadoActual(new EstadoCancelado());
     }
     @Override
