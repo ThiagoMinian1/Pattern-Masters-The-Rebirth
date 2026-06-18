@@ -141,10 +141,21 @@ app.get('/api/reservas', async (req, res) => {
 
 app.post('/api/reservas', async (req, res) => {
   const { fecha_inicio, fecha_fin, huesped_id, habitacion_id } = req.body;
+
+  const inicio = new Date(fecha_inicio);
+  const fin = new Date(fecha_fin);
+
+  if (fin <= inicio) {
+    return res.status(400).json({
+      error: 'La fecha de salida debe ser mayor que la fecha de entrada'
+    });
+  }
+
   const [result] = await pool.query(
     'INSERT INTO reserva (fecha_inicio, fecha_fin, estado_reserva, huesped_id, habitacion_id) VALUES (?,?,?,?,?)',
     [fecha_inicio, fecha_fin, 'PENDIENTE', huesped_id, habitacion_id]
   );
+
   res.json({ id: result.insertId });
 });
 
@@ -207,6 +218,40 @@ app.post('/api/checkin', async (req, res) => {
   } finally {
     conn.release();
   }
+});
+
+app.post('/api/estadias/:id/servicios', async (req, res) => {
+  try {
+
+    const id_estadia = req.params.id;
+    const { nombre, costo } = req.body;
+
+    await pool.query(
+      `INSERT INTO servicio_extra
+       (id_estadia, nombre_servicio, costo)
+       VALUES (?,?,?)`,
+      [id_estadia, nombre, costo]
+    );
+
+    res.json({ ok: true });
+
+  } catch (err) {
+    res.status(500).json({
+      error: err.message
+    });
+  }
+});
+
+app.get('/api/estadias/:id/servicios', async (req, res) => {
+
+  const [rows] = await pool.query(
+    `SELECT *
+     FROM servicio_extra
+     WHERE id_estadia=?`,
+    [req.params.id]
+  );
+
+  res.json(rows);
 });
 
 // Check-out: crea factura + pone habitación en "DISPONIBLE" + reserva COMPLETADA

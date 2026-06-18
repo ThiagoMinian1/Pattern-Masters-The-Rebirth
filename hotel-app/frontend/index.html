@@ -1169,6 +1169,18 @@
         document.getElementById('api-status').textContent = '● Conectado';
         document.getElementById('api-status').className = 'badge-status badge-success';
 
+        const inicio = new Date(fecha_inicio);
+        const fin = new Date(fecha_fin);
+
+        const diferenciaDias =
+          (fin - inicio) / (1000 * 60 * 60 * 24);
+
+
+        if (diferenciaDias < 1) {
+          return res.status(400).json({
+            error: 'La estadía debe ser de al menos una noche'
+          });
+        }
         const reservas = await apiFetch('/reservas');
         const tbody = document.getElementById('dash-reservas-body');
         const recent = reservas.slice(0,8);
@@ -1390,10 +1402,28 @@
         console.log("NOCHES:", noches);
         console.log("PRECIO:", e.precioBase_habitacion);
 
-        const total = noches * Number(e.precioBase_habitacion);
+        let total = noches * Number(e.precioBase_habitacion);
 
-        document.getElementById('co-total').value = total;
-    }
+        // Servicios extra seleccionados
+        if (document.getElementById('srv-desayuno')?.checked)
+            total += 800 * noches;
+
+        if (document.getElementById('srv-almuerzo')?.checked)
+            total += 1200 * noches;
+
+        if (document.getElementById('srv-spa')?.checked)
+            total += 2500 * noches;
+
+        if (document.getElementById('srv-parking')?.checked)
+            total += 500 * noches;
+
+        if (document.getElementById('srv-transfer')?.checked)
+            total += 1500;
+
+        if (document.getElementById('srv-minibar')?.checked)
+            total += 600 * noches;
+                document.getElementById('co-total').value = total;
+            }
 
     async function doCheckout() {
       const estadia_id = document.getElementById('co-estadia').value;
@@ -1409,12 +1439,25 @@
 
     // SERVICIOS (Decorator)
     async function loadServicios() {
-      const estadias = await apiFetch('/estadias').catch(() => []);
-      const sel = document.getElementById('dec-estadia');
-      sel.innerHTML = '<option value="">Seleccionar estadía...</option>' +
-        estadias.map(e => `<option value="${e.id_estadia}">${e.nombre_huesped} — Hab.${e.numero_habitacion}</option>`).join('');
-      updateDecTotal();
+    const estadias = await apiFetch('/estadias').catch(err => {
+        console.error(err);
+        return [];
+    });
+
+    console.log("ESTADIAS:", estadias);
+
+    const sel = document.getElementById('dec-estadia');
+
+    sel.innerHTML =
+        '<option value="">Seleccionar estadía...</option>' +
+        estadias.map(e =>
+            `<option value="${e.id_estadia}">
+                ${e.nombre_huesped} — Hab.${e.numero_habitacion}
+            </option>`
+        ).join('');
     }
+
+
 
     let selectedServices = {};
     function toggleService(el, name, price) {
@@ -1422,6 +1465,30 @@
       if (el.classList.contains('selected')) selectedServices[name] = price;
       else delete selectedServices[name];
       updateDecTotal();
+    }
+
+    async function agregarServicio(nombre, costo) {
+
+        const estadia_id =
+             document.getElementById('dec-estadia').value;
+
+        if (!estadia_id) {
+            alert('Seleccione una estadía');
+            return;
+        }
+
+        await apiFetch(
+            `/estadias/${estadia_id}/servicios`,
+            {
+                method: 'POST',
+                body: JSON.stringify({
+                    nombre,
+                    costo
+                })
+            }
+        );
+
+        alert('Servicio agregado');
     }
 
     function updateDecTotal() {
