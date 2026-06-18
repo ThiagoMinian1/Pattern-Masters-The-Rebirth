@@ -663,8 +663,14 @@
                         </div>
                         <div id="co-info" style="display:none;padding:14px;background:var(--warm);border-radius:8px;font-size:13px;margin-bottom:16px;line-height:1.8"></div>
                         <div class="form-group">
+                            <label>Promoción a aplicar (opcional)</label>
+                            <select id="co-promocion" onchange="onPromocionCheckoutChange()">
+                                <option value="">Sin promoción</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
                             <label>Total a cobrar (calculado automáticamente)</label>
-                            <input type="number" id="co-total" placeholder="Se calcula por noches × precio base">
+                            <input type="number" id="co-total" placeholder="Se calcula: habitación + servicios extra - descuento">
                         </div>
 
                         <div style="padding:12px;background:#e8f5e9;border-radius:8px;margin-bottom:16px;font-size:12px">
@@ -766,38 +772,42 @@
                         </div>
                         <label>Servicios disponibles</label>
                         <div class="service-grid">
-                            <div class="service-item" onclick="toggleService(this,'Desayuno',800)">
+                            <div class="service-item" id="srv-item-Desayuno" data-por-noche="true" onclick="toggleService(this,'Desayuno',800,true)">
                                 <div class="service-icon">🍳</div>
                                 <div class="service-name">Desayuno</div>
                                 <div class="service-price">$800/noche</div>
                             </div>
-                            <div class="service-item" onclick="toggleService(this,'Almuerzo',1200)">
+                            <div class="service-item" id="srv-item-Almuerzo" data-por-noche="true" onclick="toggleService(this,'Almuerzo',1200,true)">
                                 <div class="service-icon">🍽️</div>
                                 <div class="service-name">Almuerzo</div>
                                 <div class="service-price">$1200/noche</div>
                             </div>
-                            <div class="service-item" onclick="toggleService(this,'Spa',2500)">
+                            <div class="service-item" id="srv-item-Spa" data-por-noche="true" onclick="toggleService(this,'Spa',2500,true)">
                                 <div class="service-icon">💆</div>
                                 <div class="service-name">Spa</div>
                                 <div class="service-price">$2500/noche</div>
                             </div>
-                            <div class="service-item" onclick="toggleService(this,'Parking',500)">
+                            <div class="service-item" id="srv-item-Parking" data-por-noche="true" onclick="toggleService(this,'Parking',500,true)">
                                 <div class="service-icon">🅿️</div>
                                 <div class="service-name">Parking</div>
                                 <div class="service-price">$500/noche</div>
                             </div>
-                            <div class="service-item" onclick="toggleService(this,'Transfer',1500)">
+                            <div class="service-item" id="srv-item-Transfer" data-por-noche="false" onclick="toggleService(this,'Transfer',1500,false)">
                                 <div class="service-icon">🚗</div>
                                 <div class="service-name">Transfer</div>
                                 <div class="service-price">$1500</div>
                             </div>
-                            <div class="service-item" onclick="toggleService(this,'Minibar',600)">
+                            <div class="service-item" id="srv-item-Minibar" data-por-noche="true" onclick="toggleService(this,'Minibar',600,true)">
                                 <div class="service-icon">🍷</div>
                                 <div class="service-name">Minibar</div>
                                 <div class="service-price">$600/noche</div>
                             </div>
                         </div>
                         <div id="dec-total" style="margin-top:16px;padding:12px;background:var(--warm);border-radius:8px;font-size:13px;display:none"></div>
+                        <button class="btn btn-gold" style="width:100%;margin-top:16px" onclick="confirmarServiciosSeleccionados()">
+                            Agregar servicios seleccionados a la estadía →
+                        </button>
+                        <div id="dec-ya-cargados" style="margin-top:16px;font-size:13px"></div>
                         <div style="margin-top:12px;padding:10px;background:#f0ede8;border-radius:8px;font-size:11px;color:var(--muted)">
                             <strong>Nota:</strong> En la implementación Java, cada servicio es un ConcreteDecorator que envuelve la interfaz EstadíaDecorator. El precio total se calcula en cascada.
                         </div>
@@ -1169,18 +1179,6 @@
         document.getElementById('api-status').textContent = '● Conectado';
         document.getElementById('api-status').className = 'badge-status badge-success';
 
-        const inicio = new Date(fecha_inicio);
-        const fin = new Date(fecha_fin);
-
-        const diferenciaDias =
-          (fin - inicio) / (1000 * 60 * 60 * 24);
-
-
-        if (diferenciaDias < 1) {
-          return res.status(400).json({
-            error: 'La estadía debe ser de al menos una noche'
-          });
-        }
         const reservas = await apiFetch('/reservas');
         const tbody = document.getElementById('dash-reservas-body');
         const recent = reservas.slice(0,8);
@@ -1367,22 +1365,19 @@
       const sel = document.getElementById('co-estadia');
       sel.innerHTML = '<option value="">Seleccionar estadía...</option>' +
         activas.map(e => `<option value="${e.id_estadia}">${e.nombre_huesped} — Hab.${e.numero_habitacion} (${e.fechaCheckIn}→${e.fechaCheckOut})</option>`).join('');
+
+      const promos = await apiFetch('/promociones').catch(() => []);
+      const promoSel = document.getElementById('co-promocion');
+      promoSel.innerHTML = '<option value="">Sin promoción</option>' +
+        promos.map(p => `<option value="${p.id_promocion}" data-descuento="${p.descuento}">${p.nombre_promocion} (${p.descuento}% OFF)</option>`).join('');
     }
 
     async function loadCheckoutInfo() {
         const id = document.getElementById('co-estadia').value;
-
-        console.log("ID seleccionado:", id);
-
         if (!id) return;
 
         const estadias = await apiFetch('/estadias').catch(() => []);
-        console.log("ESTADIAS:", estadias);
-
         const e = estadias.find(x => x.id_estadia == id);
-
-        console.log("ESTADIA ENCONTRADA:");
-        console.log(JSON.stringify(e, null, 2));
 
         if (!e) {
             toast("No se encontró la estadía", "error");
@@ -1391,113 +1386,189 @@
 
         const checkIn = new Date(e.fechaCheckIn);
         const checkOut = new Date(e.fechaCheckOut);
+        const noches = Math.max(1, Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24)));
 
-        console.log("CHECKIN:", checkIn);
-        console.log("CHECKOUT:", checkOut);
+        const montoEstadia = noches * Number(e.precioBase_habitacion);
 
-        const noches = Math.ceil(
-            (checkOut - checkIn) / (1000 * 60 * 60 * 24)
-        );
+        // Servicios extra reales cargados para esta estadía (Decorator)
+        const servicios = await apiFetch(`/estadias/${id}/servicios`).catch(() => []);
+        const totalServicios = servicios.reduce((acc, s) => acc + Number(s.costo), 0);
 
-        console.log("NOCHES:", noches);
-        console.log("PRECIO:", e.precioBase_habitacion);
+        recalcularCheckoutTotal(montoEstadia, totalServicios, servicios, noches);
 
-        let total = noches * Number(e.precioBase_habitacion);
+        const info = document.getElementById('co-info');
+        info.style.display = 'block';
+        info.dataset.montoEstadia = montoEstadia;
+        info.dataset.totalServicios = totalServicios;
+        info.dataset.servicios = JSON.stringify(servicios);
+        info.dataset.noches = noches;
+    }
 
-        // Servicios extra seleccionados
-        if (document.getElementById('srv-desayuno')?.checked)
-            total += 800 * noches;
+    function recalcularCheckoutTotal(montoEstadia, totalServicios, servicios, noches) {
+        const subtotal = montoEstadia + totalServicios;
+        const promoSel = document.getElementById('co-promocion');
+        const descuentoPct = promoSel && promoSel.value
+            ? Number(promoSel.selectedOptions[0].dataset.descuento || 0)
+            : 0;
+        const descuentoMonto = subtotal * descuentoPct / 100;
+        const total = subtotal - descuentoMonto;
 
-        if (document.getElementById('srv-almuerzo')?.checked)
-            total += 1200 * noches;
+        document.getElementById('co-total').value = total.toFixed(2);
 
-        if (document.getElementById('srv-spa')?.checked)
-            total += 2500 * noches;
+        const info = document.getElementById('co-info');
+        const serviciosTexto = servicios.length
+            ? servicios.map(s => `${s.nombre_servicio} ($${Number(s.costo).toLocaleString('es-AR')})`).join(', ')
+            : 'Ninguno';
+        info.innerHTML = `
+            <strong>Noches:</strong> ${noches}<br>
+            <strong>Monto habitación:</strong> $${montoEstadia.toLocaleString('es-AR')}<br>
+            <strong>Servicios extra:</strong> ${serviciosTexto}<br>
+            <strong>Subtotal servicios:</strong> $${totalServicios.toLocaleString('es-AR')}<br>
+            ${descuentoPct ? `<strong>Descuento (${descuentoPct}%):</strong> -$${descuentoMonto.toLocaleString('es-AR')}<br>` : ''}
+            <strong>Total final:</strong> $${total.toLocaleString('es-AR')}
+        `;
+    }
 
-        if (document.getElementById('srv-parking')?.checked)
-            total += 500 * noches;
-
-        if (document.getElementById('srv-transfer')?.checked)
-            total += 1500;
-
-        if (document.getElementById('srv-minibar')?.checked)
-            total += 600 * noches;
-                document.getElementById('co-total').value = total;
-            }
+    function onPromocionCheckoutChange() {
+        const info = document.getElementById('co-info');
+        if (!info.dataset.montoEstadia) return;
+        const montoEstadia = Number(info.dataset.montoEstadia);
+        const totalServicios = Number(info.dataset.totalServicios);
+        const servicios = JSON.parse(info.dataset.servicios || '[]');
+        const noches = Number(info.dataset.noches);
+        recalcularCheckoutTotal(montoEstadia, totalServicios, servicios, noches);
+    }
 
     async function doCheckout() {
       const estadia_id = document.getElementById('co-estadia').value;
       const total = document.getElementById('co-total').value || null;
+      const promocion_id = document.getElementById('co-promocion').value || null;
       if (!estadia_id) return toast('Seleccioná una estadía', 'error');
       try {
-        const res = await apiFetch('/checkout', { method:'POST', body: JSON.stringify({estadia_id,total}) });
-        toast(`Check-out realizado. Factura: $${Number(res.total).toLocaleString('es-AR')} ✓`, 'success');
+        const res = await apiFetch('/checkout', { method:'POST', body: JSON.stringify({estadia_id,total,promocion_id}) });
+        const promoTxt = res.promoNombre ? ` (Promo "${res.promoNombre}" aplicada)` : '';
+        toast(`Check-out realizado. Factura: $${Number(res.total).toLocaleString('es-AR')}${promoTxt} ✓`, 'success');
         document.getElementById('co-info').style.display = 'none';
         loadCheckout();
       } catch(e) { toast(e.message, 'error'); }
     }
 
     // SERVICIOS (Decorator)
+    let estadiasCache = [];
+
     async function loadServicios() {
-    const estadias = await apiFetch('/estadias').catch(err => {
-        console.error(err);
-        return [];
-    });
+      const todasEstadias = await apiFetch('/estadias').catch(err => {
+          console.error(err);
+          return [];
+      });
+      estadiasCache = todasEstadias.filter(e => !e.id_factura); // solo estadías activas (sin facturar)
 
-    console.log("ESTADIAS:", estadias);
+      const sel = document.getElementById('dec-estadia');
+      sel.innerHTML =
+          '<option value="">Seleccionar estadía...</option>' +
+          estadiasCache.map(e =>
+              `<option value="${e.id_estadia}">${e.nombre_huesped} — Hab.${e.numero_habitacion} (${e.fechaCheckIn}→${e.fechaCheckOut})</option>`
+          ).join('');
 
-    const sel = document.getElementById('dec-estadia');
-
-    sel.innerHTML =
-        '<option value="">Seleccionar estadía...</option>' +
-        estadias.map(e =>
-            `<option value="${e.id_estadia}">
-                ${e.nombre_huesped} — Hab.${e.numero_habitacion}
-            </option>`
-        ).join('');
+      sel.onchange = onEstadiaServiciosChange;
+      limpiarSeleccionServicios();
+      document.getElementById('dec-ya-cargados').innerHTML = '';
     }
 
+    function nochesDeEstadiaSeleccionada() {
+      const estadia_id = document.getElementById('dec-estadia').value;
+      const e = estadiasCache.find(x => x.id_estadia == estadia_id);
+      if (!e) return 1;
+      const checkIn = new Date(e.fechaCheckIn);
+      const checkOut = new Date(e.fechaCheckOut);
+      return Math.max(1, Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24)));
+    }
 
+    async function onEstadiaServiciosChange() {
+      limpiarSeleccionServicios();
+      const estadia_id = document.getElementById('dec-estadia').value;
+      const div = document.getElementById('dec-ya-cargados');
+      if (!estadia_id) { div.innerHTML = ''; return; }
 
-    let selectedServices = {};
-    function toggleService(el, name, price) {
+      const servicios = await apiFetch(`/estadias/${estadia_id}/servicios`).catch(() => []);
+      if (servicios.length) {
+        const total = servicios.reduce((a,s) => a + Number(s.costo), 0);
+        div.innerHTML = `<strong>Servicios ya cargados para esta estadía:</strong><br>` +
+          servicios.map(s => {
+            const noches = s.noches_aplicadas || 1;
+            const detalle = noches > 1 ? ` ($${Number(s.precio_unitario).toLocaleString('es-AR')} × ${noches} noches)` : '';
+            return `${s.nombre_servicio} — $${Number(s.costo).toLocaleString('es-AR')}${detalle}`;
+          }).join('<br>') +
+          `<br><strong>Total cargado: $${total.toLocaleString('es-AR')}</strong>`;
+      } else {
+        div.innerHTML = '<em>Todavía no hay servicios cargados para esta estadía.</em>';
+      }
+    }
+
+    function limpiarSeleccionServicios() {
+      selectedServices = {};
+      document.querySelectorAll('.service-item.selected').forEach(el => el.classList.remove('selected'));
+      updateDecTotal();
+    }
+
+    let selectedServices = {}; // { nombre: { precioUnitario, porNoche } }
+    function toggleService(el, name, precioUnitario, porNoche) {
       el.classList.toggle('selected');
-      if (el.classList.contains('selected')) selectedServices[name] = price;
+      if (el.classList.contains('selected')) selectedServices[name] = { precioUnitario, porNoche };
       else delete selectedServices[name];
       updateDecTotal();
     }
 
-    async function agregarServicio(nombre, costo) {
-
-        const estadia_id =
-             document.getElementById('dec-estadia').value;
-
+    async function agregarServicio(nombre, precioUnitario, noches) {
+        const estadia_id = document.getElementById('dec-estadia').value;
         if (!estadia_id) {
             alert('Seleccione una estadía');
             return;
         }
-
         await apiFetch(
             `/estadias/${estadia_id}/servicios`,
-            {
-                method: 'POST',
-                body: JSON.stringify({
-                    nombre,
-                    costo
-                })
-            }
+            { method: 'POST', body: JSON.stringify({ nombre, precio_unitario: precioUnitario, noches }) }
         );
+    }
 
-        alert('Servicio agregado');
+    async function confirmarServiciosSeleccionados() {
+      const estadia_id = document.getElementById('dec-estadia').value;
+      if (!estadia_id) return toast('Seleccioná una estadía', 'error');
+      const nombres = Object.keys(selectedServices);
+      if (!nombres.length) return toast('Seleccioná al menos un servicio', 'error');
+
+      const noches = nochesDeEstadiaSeleccionada();
+
+      try {
+        for (const nombre of nombres) {
+          const { precioUnitario, porNoche } = selectedServices[nombre];
+          await agregarServicio(nombre, precioUnitario, porNoche ? noches : 1);
+        }
+        toast(`${nombres.length} servicio(s) agregado(s) a la estadía ✓`, 'success');
+        limpiarSeleccionServicios();
+        onEstadiaServiciosChange();
+      } catch (e) {
+        toast(e.message || 'Error al agregar servicios', 'error');
+      }
     }
 
     function updateDecTotal() {
-      const total = Object.values(selectedServices).reduce((a,b) => a+b, 0);
-      const div = document.getElementById('dec-total');
+      const noches = nochesDeEstadiaSeleccionada();
       const names = Object.keys(selectedServices);
+      const total = names.reduce((acc, name) => {
+        const { precioUnitario, porNoche } = selectedServices[name];
+        return acc + (porNoche ? precioUnitario * noches : precioUnitario);
+      }, 0);
+
+      const div = document.getElementById('dec-total');
       if (names.length) {
         div.style.display = 'block';
-        div.innerHTML = `<strong>Servicios seleccionados:</strong> ${names.join(' → ')}<br>
+        const detalle = names.map(name => {
+          const { precioUnitario, porNoche } = selectedServices[name];
+          const sub = porNoche ? precioUnitario * noches : precioUnitario;
+          return `${name}: $${sub.toLocaleString('es-AR')}${porNoche ? ` (${noches} noches)` : ''}`;
+        }).join(' · ');
+        div.innerHTML = `<strong>Servicios seleccionados:</strong> ${detalle}<br>
           <strong>Costo adicional total: $${total.toLocaleString('es-AR')}</strong><br>
           <small style="color:var(--muted)">Patron Decorator: EstadíaBase → ${names.join('Decorator → ')}Decorator</small>`;
       } else {

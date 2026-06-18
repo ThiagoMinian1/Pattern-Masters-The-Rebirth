@@ -224,16 +224,20 @@ app.post('/api/estadias/:id/servicios', async (req, res) => {
   try {
 
     const id_estadia = req.params.id;
-    const { nombre, costo } = req.body;
+    const { nombre, precio_unitario, noches } = req.body;
+
+    const nochesAplicadas = Number(noches) || 1;
+    const precioUnit = Number(precio_unitario);
+    const costoTotal = precioUnit * nochesAplicadas;
 
     await pool.query(
       `INSERT INTO servicio_extra
-       (id_estadia, nombre_servicio, costo)
-       VALUES (?,?,?)`,
-      [id_estadia, nombre, costo]
+       (id_estadia, nombre_servicio, precio_unitario, noches_aplicadas, costo)
+       VALUES (?,?,?,?,?)`,
+      [id_estadia, nombre, precioUnit, nochesAplicadas, costoTotal]
     );
 
-    res.json({ ok: true });
+    res.json({ ok: true, costo: costoTotal });
 
   } catch (err) {
     res.status(500).json({
@@ -254,9 +258,9 @@ app.get('/api/estadias/:id/servicios', async (req, res) => {
   res.json(rows);
 });
 
-// Check-out: crea factura + pone habitación en "DISPONIBLE" + reserva COMPLETADA
+// Check-out: crea factura (habitación + servicios extra - descuento promo) + libera habitación + completa reserva
 app.post('/api/checkout', async (req, res) => {
-  const { estadia_id, total } = req.body;
+  const { estadia_id, total, promocion_id } = req.body;
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
@@ -269,24 +273,52 @@ app.post('/api/checkout', async (req, res) => {
       WHERE e.id_estadia=?`, [estadia_id]);
     if (!e.length) throw new Error('Estadía no encontrada');
     const { reserva_id, habitacion_id, precioBase_habitacion, noches } = e[0];
-    const montoFinal = total || (precioBase_habitacion * Math.max(noches, 1));
+
+    // Servicios extra cargados para esta estadía (patrón Decorator)
+    const [[{ totalServicios }]] = await conn.query(
+      'SELECT COALESCE(SUM(costo),0) as totalServicios FROM servicio_extra WHERE id_estadia=?',
+      [estadia_id]
+    );
+
+    const montoEstadia = precioBase_habitacion * Math.max(noches, 1);
+    const subtotal = montoEstadia + Number(totalServicios);
+
+    // Promoción opcional (patrón Strategy): descuento % sobre el subtotal
+    let descuentoAplicado = 0;
+    let promoNombre = null;
+    if (promocion_id) {
+      const [promo] = await conn.query(
+        'SELECT nombre_promocion, descuento FROM promocion WHERE id_promocion=?',
+        [promocion_id]
+      );
+      if (promo.length) {
+        descuentoAplicado = Number(promo[0].descuento);
+        promoNombre = promo[0].nombre_promocion;
+      }
+    }
+
+    const montoFinal = total || (subtotal - (subtotal * descuentoAplicado / 100));
+
     const [factExist] = await conn.query('SELECT id_factura FROM factura WHERE id_estadia=?', [estadia_id]);
     if (factExist.length > 0) throw new Error('Ya existe una factura para esta estadía');
     await conn.query('INSERT INTO factura (id_estadia, total) VALUES (?,?)', [estadia_id, montoFinal]);
     await conn.query('UPDATE habitacion SET estado_habitacion="DISPONIBLE" WHERE id_habitacion=?', [habitacion_id]);
     await conn.query('UPDATE reserva SET estado_reserva="COMPLETADA" WHERE id_reserva=?', [reserva_id]);
     await conn.commit();
-    res.json({ ok: true, total: montoFinal });
+    res.json({
+      ok: true,
+      total: montoFinal,
+      montoEstadia,
+      totalServicios: Number(totalServicios),
+      descuentoAplicado,
+      promoNombre
+    });
   } catch (e) {
     await conn.rollback();
     res.status(400).json({ error: e.message });
   } finally {
     conn.release();
   }
-  await conn.query(
-    'INSERT INTO factura (id_estadia, total, metodo_pago) VALUES (?,?,?)',
-    [estadia_id, montoFinal, metodo]
-  );
 });
 
 // ─── FACTURAS (Template Method: pagos) ───────────────────────────────────────
@@ -332,16 +364,12 @@ app.get('/api/stats', async (req, res) => {
   const [[{ ingresos_total }]] = await pool.query('SELECT COALESCE(SUM(total),0) as ingresos_total FROM factura');
   const [[{ lista_espera }]] = await pool.query("SELECT COUNT(*) as lista_espera FROM reserva WHERE estado_reserva='LISTA_ESPERA'");
   res.json({ total_reservas, habitaciones_disponibles, habitaciones_ocupadas, total_huespedes, ingresos_total, lista_espera });
+});
 
-  app.use((err, req, res, next) => {
-     console.error(err);
-
-     res.status(500).json({
-       error: 'Error interno del servidor'
-     });
-  });
-
-
+// Manejador de errores global
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ error: 'Error interno del servidor' });
 });
 
 const PORT = process.env.PORT || 3001;
