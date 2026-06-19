@@ -1,16 +1,14 @@
 package com.HotelReservas.facade;
 
 import com.HotelReservas.Modelos.Reserva;
-import com.HotelReservas.adapter.ServicioEmail;
-import com.HotelReservas.adapter.EmailAdapter;
 import com.HotelReservas.templateMethod.ProcesadorPago;
 
 public class ReservaFacade {
 
-    private ServicioEmail email;
+    private EmailService email;
 
     public ReservaFacade() {
-        this.email = new EmailAdapter();
+        this.email = new EmailService();
     }
 
     public void checkIn(Reserva reserva) {

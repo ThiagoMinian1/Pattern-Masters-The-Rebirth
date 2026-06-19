@@ -1,9 +1,7 @@
-package com.HotelReservas.adapter;
+package com.HotelReservas.facade;
 
+public class EmailService {
 
-public class EmailAdapter implements ServicioEmail {
-
-    @Override
     public void enviarConfirmacion(String destinatario, String mensaje) {
         System.out.println("[Email a " + destinatario + "]: " + mensaje);
     }
