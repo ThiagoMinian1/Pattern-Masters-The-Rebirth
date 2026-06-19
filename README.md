@@ -1,8 +1,8 @@
 # 🏨 Hotel Pattern Masters
 
 ## 👥 Integrantes del Grupo
-* **Agostina Sol Lopez**
 * **Leandro Corti**
+* **Agostina Sol Lopez**
 * **Thiago Minian**
 
 ---
