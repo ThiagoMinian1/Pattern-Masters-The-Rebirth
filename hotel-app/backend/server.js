@@ -151,12 +151,16 @@ app.post('/api/reservas', async (req, res) => {
     });
   }
 
+  // Si la habitación está ocupada, la reserva va directo a LISTA_ESPERA (Observer)
+  const [[hab]] = await pool.query('SELECT estado_habitacion FROM habitacion WHERE id_habitacion=?', [habitacion_id]);
+  const estadoInicial = (hab && hab.estado_habitacion === 'OCUPADA') ? 'LISTA_ESPERA' : 'PENDIENTE';
+
   const [result] = await pool.query(
     'INSERT INTO reserva (fecha_inicio, fecha_fin, estado_reserva, huesped_id, habitacion_id) VALUES (?,?,?,?,?)',
-    [fecha_inicio, fecha_fin, 'PENDIENTE', huesped_id, habitacion_id]
+    [fecha_inicio, fecha_fin, estadoInicial, huesped_id, habitacion_id]
   );
 
-  res.json({ id: result.insertId });
+  res.json({ id: result.insertId, estado: estadoInicial });
 });
 
 app.put('/api/reservas/:id/estado', async (req, res) => {
@@ -304,6 +308,25 @@ app.post('/api/checkout', async (req, res) => {
     await conn.query('INSERT INTO factura (id_estadia, total) VALUES (?,?)', [estadia_id, montoFinal]);
     await conn.query('UPDATE habitacion SET estado_habitacion="DISPONIBLE" WHERE id_habitacion=?', [habitacion_id]);
     await conn.query('UPDATE reserva SET estado_reserva="COMPLETADA" WHERE id_reserva=?', [reserva_id]);
+
+    // ── OBSERVER: al liberar la habitación, promover la primera reserva en lista de espera
+    // que tenga asignada esa misma habitación
+    const [enEspera] = await conn.query(`
+      SELECT id_reserva FROM reserva
+      WHERE habitacion_id = ? AND estado_reserva = 'LISTA_ESPERA'
+      ORDER BY id_reserva ASC
+      LIMIT 1
+    `, [habitacion_id]);
+    let promovida = null;
+    if (enEspera.length > 0) {
+      const id_promovida = enEspera[0].id_reserva;
+      await conn.query(
+        "UPDATE reserva SET estado_reserva='PENDIENTE' WHERE id_reserva=?",
+        [id_promovida]
+      );
+      promovida = id_promovida;
+    }
+
     await conn.commit();
     res.json({
       ok: true,
@@ -311,7 +334,8 @@ app.post('/api/checkout', async (req, res) => {
       montoEstadia,
       totalServicios: Number(totalServicios),
       descuentoAplicado,
-      promoNombre
+      promoNombre,
+      reserva_promovida: promovida  // null si no había nadie en espera
     });
   } catch (e) {
     await conn.rollback();
@@ -353,6 +377,35 @@ app.post('/api/promociones', async (req, res) => {
 app.delete('/api/promociones/:id', async (req, res) => {
   await pool.query('DELETE FROM promocion WHERE id_promocion=?', [req.params.id]);
   res.json({ ok: true });
+});
+
+// ─── LISTA DE ESPERA (Observer) ──────────────────────────────────────────────
+app.get("/api/lista-espera", async (req, res) => {
+  try {
+    const [rows] = await pool.query(`
+      SELECT r.id_reserva, r.fecha_inicio, r.fecha_fin, r.estado_reserva,
+             h.nombre_huesped, h.email_huesped,
+             hab.numero_habitacion, hab.tipo_habitacion, hab.precioBase_habitacion
+      FROM reserva r
+      JOIN huesped h ON r.huesped_id = h.id_huesped
+      JOIN habitacion hab ON r.habitacion_id = hab.id_habitacion
+      WHERE r.estado_reserva = 'LISTA_ESPERA'
+      ORDER BY r.id_reserva ASC
+    `);
+    res.json(rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.put("/api/lista-espera/:id", async (req, res) => {
+  try {
+    const [result] = await pool.query(
+      "UPDATE reserva SET estado_reserva='LISTA_ESPERA' WHERE id_reserva=? AND estado_reserva='PENDIENTE'",
+      [req.params.id]
+    );
+    if (result.affectedRows === 0)
+      return res.status(400).json({ error: "Solo se pueden poner en lista reservas PENDIENTE" });
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // ─── STATS para dashboard ─────────────────────────────────────────────────────

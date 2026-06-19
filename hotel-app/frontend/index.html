@@ -569,6 +569,10 @@
                 <span class="icon">💳</span> Pagos
                 <span class="pattern-tag" style="margin-left:auto;font-size:8px">Template</span>
             </div>
+            <div class="nav-item" onclick="navigate('listaespera')">
+                <span class="icon">⏳</span> Lista de Espera
+                <span class="pattern-tag" style="margin-left:auto;font-size:8px">Observer</span>
+            </div>
         </nav>
         <div class="sidebar-footer">v1.0 · PatternMasters © 2026</div>
     </aside>
@@ -856,6 +860,49 @@
                 </div>
             </div>
 
+            <!-- ── LISTA DE ESPERA (Observer) ── -->
+            <div class="page" id="page-listaespera">
+                <div class="section-eyebrow">Observer Pattern</div>
+                <h2 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:28px;margin-bottom:8px">
+                    Lista de Espera
+                </h2>
+                <p style="color:var(--muted);font-size:13px;margin-bottom:24px">
+                    Las reservas en espera se ordenan por orden de llegada. Cuando se libera una habitación en el check-out, el Observer promueve automáticamente la primera reserva de la lista a estado <strong>PENDIENTE</strong>.
+                </p>
+                <div style="padding:12px 16px;background:#f3e5f5;border-radius:8px;font-size:12px;color:#7b1fa2;margin-bottom:20px">
+                    <strong>Observer:</strong> Al hacer check-out, el sistema notifica automáticamente a esta lista. Si hay una reserva esperando esa habitación, pasa a PENDIENTE sin intervención manual.
+                </div>
+                <div class="table-card">
+                    <div class="table-header">
+                        <h2>Reservas en espera <span class="pattern-tag">Observer</span></h2>
+                        <button class="btn btn-outline btn-sm" onclick="loadListaEspera()">↻ Actualizar</button>
+                    </div>
+                    <table>
+                        <thead><tr>
+                            <th>Posición</th><th>Reserva #</th><th>Huésped</th><th>Habitación</th><th>Fechas</th><th>Acciones</th>
+                        </tr></thead>
+                        <tbody id="listaespera-body"></tbody>
+                    </table>
+                </div>
+                <div class="table-card" style="margin-top:24px">
+                    <div class="table-header">
+                        <h2>Agregar a lista de espera</h2>
+                    </div>
+                    <div class="modal-body">
+                        <p style="font-size:13px;color:var(--muted);margin-bottom:16px">
+                            Seleccioná una reserva en estado PENDIENTE para agregarla a la lista de espera.
+                        </p>
+                        <div class="form-group">
+                            <label>Reserva pendiente</label>
+                            <select id="le-reserva">
+                                <option value="">Seleccionar reserva...</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="agregarListaEspera()">Agregar a lista de espera</button>
+                    </div>
+                </div>
+            </div>
+
         </div><!-- /content -->
     </main>
 </div>
@@ -877,6 +924,9 @@
             <div class="form-group">
                 <label>Habitación (Factory)</label>
                 <select id="nr-habitacion"><option value="">Seleccionar habitación...</option></select>
+            </div>
+            <div id="nr-aviso-espera" style="display:none;padding:10px;background:#f3e5f5;border-radius:8px;font-size:12px;color:#7b1fa2;margin-bottom:8px">
+                ⏳ <strong>Habitación ocupada.</strong> La reserva se creará en <strong>Lista de Espera</strong> y pasará a PENDIENTE automáticamente cuando el huésped actual haga check-out.
             </div>
             <div class="form-row">
                 <div class="form-group">
@@ -1041,7 +1091,7 @@
       dashboard:'Dashboard', checkin:'Check-in', checkout:'Check-out',
       reservas:'Reservas', habitaciones:'Habitaciones', huespedes:'Huéspedes',
       servicios:'Servicios Extra', promociones:'Estrategias de Costo',
-      pagos:'Pagos', adapter:'Integraciones'
+      pagos:'Pagos', adapter:'Integraciones', listaespera:'Lista de Espera'
     };
 
 
@@ -1109,6 +1159,7 @@
       servicios: loadServicios,
       promociones: loadPromociones,
       pagos: loadPagos,
+      listaespera: loadListaEspera,
     };
 
     function chip(estado) {
@@ -1171,8 +1222,13 @@
       const fecha_fin = document.getElementById('nr-fin').value;
       if (!huesped_id || !habitacion_id || !fecha_inicio || !fecha_fin) return toast('Completá todos los campos', 'error');
       try {
-        await apiFetch('/reservas', { method:'POST', body: JSON.stringify({fecha_inicio,fecha_fin,huesped_id,habitacion_id}) });
-        toast('Reserva creada. Observer notificado ✓', 'success');
+        const res = await apiFetch('/reservas', { method:'POST', body: JSON.stringify({fecha_inicio,fecha_fin,huesped_id,habitacion_id}) });
+        if (res.estado === 'LISTA_ESPERA') {
+          toast('Habitación ocupada — Reserva agregada a Lista de Espera ⏳', 'info');
+        } else {
+          toast('Reserva creada. Observer notificado ✓', 'success');
+        }
+        document.getElementById('nr-aviso-espera').style.display = 'none';
         closeModal('modal-nueva-reserva');
         loadReservas();
       } catch(e) { toast(e.message, 'error'); }
@@ -1397,6 +1453,12 @@
         const res = await apiFetch('/checkout', { method:'POST', body: JSON.stringify({estadia_id,total,promocion_id}) });
         const promoTxt = res.promoNombre ? ` (Promo "${res.promoNombre}" aplicada)` : '';
         toast(`Check-out realizado. Factura: $${Number(res.total).toLocaleString('es-AR')}${promoTxt} ✓`, 'success');
+        // Observer: notificar si se promovió una reserva de lista de espera
+        if (res.reserva_promovida) {
+          setTimeout(() => {
+            toast(`Observer: Reserva #${res.reserva_promovida} promovida de lista de espera → PENDIENTE ✓`, 'info');
+          }, 800);
+        }
         document.getElementById('co-info').style.display = 'none';
         loadCheckout();
       } catch(e) { toast(e.message, 'error'); }
@@ -1577,6 +1639,47 @@
       toast(`Adapter ${name}: sincronización simulada → 3 reservas importadas ✓`, 'success');
     }
 
+    // LISTA DE ESPERA (Observer)
+    async function loadListaEspera() {
+      const data = await apiFetch('/lista-espera').catch(() => []);
+      const tbody = document.getElementById('listaespera-body');
+      tbody.innerHTML = data.length ? data.map((r, i) => `<tr>
+        <td><strong>#${i + 1}</strong></td>
+        <td>#${r.id_reserva}</td>
+        <td>${r.nombre_huesped}<br><small style="color:var(--muted)">${r.email_huesped}</small></td>
+        <td>Hab. ${r.numero_habitacion} — ${r.tipo_habitacion}</td>
+        <td>${r.fecha_inicio} → ${r.fecha_fin}</td>
+        <td>
+          <button class="btn btn-danger btn-sm" onclick="quitarListaEspera(${r.id_reserva})">Quitar</button>
+        </td>
+      </tr>`).join('') : '<tr><td colspan="6" class="empty-state">No hay reservas en lista de espera</td></tr>';
+
+      // Cargar select de reservas pendientes para agregar
+      const reservas = await apiFetch('/reservas').catch(() => []);
+      const pendientes = reservas.filter(r => r.estado_reserva === 'PENDIENTE');
+      const sel = document.getElementById('le-reserva');
+      sel.innerHTML = '<option value="">Seleccionar reserva...</option>' +
+        pendientes.map(r => `<option value="${r.id_reserva}">#${r.id_reserva} — ${r.nombre_huesped} (Hab. ${r.numero_habitacion})</option>`).join('');
+    }
+
+    async function agregarListaEspera() {
+      const id = document.getElementById('le-reserva').value;
+      if (!id) return toast('Seleccioná una reserva', 'error');
+      try {
+        await apiFetch(`/lista-espera/${id}`, { method: 'PUT' });
+        toast('Reserva agregada a lista de espera. Observer registrado ✓', 'success');
+        loadListaEspera();
+      } catch(e) { toast(e.message, 'error'); }
+    }
+
+    async function quitarListaEspera(id) {
+      try {
+        await apiFetch(`/reservas/${id}/estado`, { method: 'PUT', body: JSON.stringify({ estado: 'PENDIENTE' }) });
+        toast('Reserva removida de lista de espera', 'info');
+        loadListaEspera();
+      } catch(e) { toast(e.message, 'error'); }
+    }
+
     // ── INIT ─────────────────────────────────────────────────────────────────────
     function actualizarPrecioHabitacion() {
         const tipo = document.getElementById("nh-tipo").value;
@@ -1601,8 +1704,22 @@
           huespedes.map(h => `<option value="${h.id_huesped}">${h.nombre_huesped}</option>`).join('');
         const habEl = document.getElementById('nr-habitacion');
         habEl.innerHTML = '<option value="">Seleccionar habitación...</option>' +
-          habitaciones.filter(h => h.estado_habitacion === 'DISPONIBLE')
-            .map(h => `<option value="${h.id_habitacion}">Hab. ${h.numero_habitacion} — ${h.tipo_habitacion} ($${h.precioBase_habitacion})</option>`).join('');
+          habitaciones.map(h => {
+            const label = h.estado_habitacion === 'DISPONIBLE'
+              ? `Hab. ${h.numero_habitacion} — ${h.tipo_habitacion} ($${h.precioBase_habitacion})`
+              : `Hab. ${h.numero_habitacion} — ${h.tipo_habitacion} ($${h.precioBase_habitacion}) ⏳ OCUPADA → Lista de espera`;
+            return `<option value="${h.id_habitacion}" data-estado="${h.estado_habitacion}">${label}</option>`;
+          }).join('');
+        // Mostrar aviso cuando seleccionan habitación ocupada
+        habEl.onchange = () => {
+          const sel = habEl.options[habEl.selectedIndex];
+          const aviso = document.getElementById('nr-aviso-espera');
+          if (sel && sel.dataset.estado === 'OCUPADA') {
+            aviso.style.display = 'block';
+          } else {
+            aviso.style.display = 'none';
+          }
+        };
       };
 
       document.getElementById('modal-nueva-reserva').addEventListener('click', (e) => {
