@@ -569,10 +569,6 @@
                 <span class="icon">💳</span> Pagos
                 <span class="pattern-tag" style="margin-left:auto;font-size:8px">Template</span>
             </div>
-            <div class="nav-item" onclick="navigate('adapter')">
-                <span class="icon">🔌</span> Integraciones
-                <span class="pattern-tag" style="margin-left:auto;font-size:8px">Adapter</span>
-            </div>
         </nav>
         <div class="sidebar-footer">v1.0 · PatternMasters © 2026</div>
     </aside>
@@ -857,53 +853,6 @@
                         </tr></thead>
                         <tbody id="facturas-body"></tbody>
                     </table>
-                </div>
-            </div>
-
-            <!-- ── ADAPTER ── -->
-            <div class="page" id="page-adapter">
-                <div class="section-eyebrow">Adapter Pattern</div>
-                <h2 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:28px;margin-bottom:8px">
-                    Integraciones Externas
-                </h2>
-                <p style="color:var(--muted);font-size:13px;margin-bottom:24px">
-                    El Adapter traduce la interfaz del sistema externo a la interfaz que usa el hotel internamente.
-                </p>
-                <div class="adapter-card">
-                    <div class="adapter-icon">🌐</div>
-                    <div class="adapter-info">
-                        <h4>Booking.com Adapter</h4>
-                        <p>Traduce reservas de Booking.com al modelo interno de Reserva</p>
-                    </div>
-                    <div class="adapter-status">
-                        <span class="chip chip-DISPONIBLE">Simulado</span>
-                    </div>
-                    <button class="btn btn-outline btn-sm" onclick="simAdapter('Booking.com')">Simular sincronización</button>
-                </div>
-                <div class="adapter-card">
-                    <div class="adapter-icon">✈️</div>
-                    <div class="adapter-info">
-                        <h4>Expedia Adapter</h4>
-                        <p>Integración con el sistema de reservas de Expedia</p>
-                    </div>
-                    <div class="adapter-status">
-                        <span class="chip chip-DISPONIBLE">Simulado</span>
-                    </div>
-                    <button class="btn btn-outline btn-sm" onclick="simAdapter('Expedia')">Simular sincronización</button>
-                </div>
-                <div class="adapter-card">
-                    <div class="adapter-icon">💳</div>
-                    <div class="adapter-info">
-                        <h4>MercadoPago Adapter</h4>
-                        <p>Adapta el sistema de pagos de MercadoPago a la interfaz de pago interna</p>
-                    </div>
-                    <div class="adapter-status">
-                        <span class="chip chip-DISPONIBLE">Simulado</span>
-                    </div>
-                    <button class="btn btn-outline btn-sm" onclick="simAdapter('MercadoPago')">Simular pago</button>
-                </div>
-                <div style="margin-top:16px;padding:14px;background:var(--warm);border-radius:8px;font-size:12px;color:var(--muted)">
-                    <strong>En Java:</strong> Cada adaptador implementa la interfaz <code>ServicioExternoAdapter</code> y tiene una referencia al sistema externo concreto (Booking API, Expedia SDK, etc.). El hotel solo conoce la interfaz.
                 </div>
             </div>
 
