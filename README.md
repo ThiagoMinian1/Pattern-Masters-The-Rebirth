@@ -36,4 +36,19 @@ Deberías ver el siguiente mensaje:
 | **Builder** | Creacional | Se emplea para construir objetos complejos como una `Reserva`, configurando paso a paso sus diferentes atributos (huésped, habitación, fechas, servicios adicionales y promociones). |
 | **Decorator** | Estructural | Añade servicios adicionales a una estadía de manera dinámica (desayuno, spa, cochera) sin modificar la estructura de las clases base. |
 | **Facade** | Estructural | Proporciona una interfaz simplificada a los distintos subsistemas del hotel, facilitando operaciones complejas como la gestión integrada de reservas, habitaciones y facturación. |
-|
+| **Strategy** | Comportamiento | Encapsula diferentes algoritmos de cálculo de precios, permitiendo aplicar distintas políticas según promociones, temporadas o categorías de huéspedes de forma dinámica. |
+| **State** | Comportamiento | Modela los distintos estados de una reserva y de una habitación, permitiendo que su comportamiento y restricciones cambien según el estado actual en el que se encuentren. |
+| **Observer** | Comportamiento | Implementa el sistema de notificaciones automáticas para informar a los huéspedes cuando ocurren cambios relevantes en sus reservas o cuando se libera un lugar. |
+| **Mediator** | Comportamiento | Centraliza la comunicación entre los componentes del sistema, reduciendo drásticamente el acoplamiento directo entre reservas, habitaciones y huéspedes. |
+| **Template Method** | Comportamiento | Define el flujo general de procesos comunes (como el cálculo de facturación o gestión de estadías), permitiendo que ciertos pasos específicos sean personalizados por las subclases. |
+
+## 📈 Distribución de Tareas
+
+Agostina: He evaluado y definido los patrones tanto creacionales, como estructurales y de comportamiento a emplear en el proyecto del sistema hotelero, así como también establecí los requerimientos funcionales y no funcionales con los que debe cumplir. Por otra parte, también he integrado los conocimientos adoptados en POO para detectar los patrones GRASP y principios SOLID que aplican en este caso de estudio. 
+A su vez, contribuí con porciones del código que estamos desarrollando para construir el programa; el cual se encuentra en el repositorio de GitHub.
+
+Leandro: He tomado la responsabilidad de realizar el diagrama de clases UML definiendo cuáles son las clases a utilizar y cómo se conectan entre ellas. Además he definido los casos de uso para el sistema y modelado un diagrama de dos de ellos considerados como los más importantes.
+De la misma manera realicé un análisis del contexto y alcance del proyecto para definir cuáles son los mejores patrones de diseño que se adaptan a nuestras necesidades y seleccionarlos para que luego los implementemos.
+
+Thiago: Definí y evalué los patrones de diseño a aplicar en el sistema hotelero, abarcando creacionales (Factory, Builder), estructurales (Adapter, Decorator, Facade) y de comportamiento (Observer, State, Strategy, Template Method). También contribuí con porciones del código en el repositorio de GitHub, incluyendo las clases del dominio, los estados de la reserva y la interfaz de estrategia de precio, y participé en las decisiones de arquitectura general del proyecto.
+
