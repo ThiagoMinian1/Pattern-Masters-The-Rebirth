@@ -23,9 +23,10 @@ public class Huesped {
             throw new IllegalArgumentException("El DNI debe tener 7 u 8 dígitos.");
         }
 
-        if (email == null || !email.matches("^[A-Za-z0-9._%+-]+@gmail\\.com$")) {
+        // FIX: acepta cualquier email válido, no solo @gmail.com
+        if (email == null || !email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
             throw new IllegalArgumentException(
-                    "Email inválido. Debe tener formato usuario@gmail.com");
+                    "Email inválido. Debe tener formato usuario@dominio.com");
         }
 
         if (telefono == null || !telefono.matches("\\d{10,11}")) {
@@ -41,33 +42,12 @@ public class Huesped {
         this.historialEstadias = new ArrayList<>();
     }
 
-    // GETTERS
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public String getDni() {
-        return dni;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public String getCategoria() {
-        return categoria;
-    }
-
-    public List<String> getHistorialEstadias() {
-        return historialEstadias;
-    }
-
-    // SETTERS
+    public String getNombre() { return nombre; }
+    public String getDni() { return dni; }
+    public String getEmail() { return email; }
+    public String getTelefono() { return telefono; }
+    public String getCategoria() { return categoria; }
+    public List<String> getHistorialEstadias() { return historialEstadias; }
 
     public void setNombre(String nombre) {
         if (nombre == null || nombre.trim().isEmpty()) {
@@ -76,44 +56,31 @@ public class Huesped {
         this.nombre = nombre;
     }
 
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
-    }
+    public void setCategoria(String categoria) { this.categoria = categoria; }
 
     public void setEmail(String email) {
-        if (email == null || !email.matches("^[A-Za-z0-9._%+-]+@gmail\\.com$")) {
-            throw new IllegalArgumentException(
-                    "Email inválido. Debe tener formato usuario@gmail.com");
+        if (email == null || !email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            throw new IllegalArgumentException("Email inválido.");
         }
         this.email = email;
     }
 
     public void setTelefono(String telefono) {
         if (telefono == null || !telefono.matches("\\d{10,11}")) {
-            throw new IllegalArgumentException(
-                    "Teléfono inválido. Debe tener 10 u 11 dígitos.");
+            throw new IllegalArgumentException("Teléfono inválido. Debe tener 10 u 11 dígitos.");
         }
         this.telefono = telefono;
     }
 
-    // HISTORIAL
-
-    public void agregarEstadia(String resumen) {
-        historialEstadias.add(resumen);
-    }
+    public void agregarEstadia(String resumen) { historialEstadias.add(resumen); }
 
     public void mostrarHistorial() {
-
         if (historialEstadias.isEmpty()) {
             System.out.println(nombre + " no posee estadías registradas.");
             return;
         }
-
         String palabra = historialEstadias.size() == 1 ? "estadía" : "estadías";
-
-        System.out.println(
-                nombre + " ha tenido " + historialEstadias.size() + " " + palabra + ":");
-
+        System.out.println(nombre + " ha tenido " + historialEstadias.size() + " " + palabra + ":");
         for (int i = 0; i < historialEstadias.size(); i++) {
             System.out.println((i + 1) + ". " + historialEstadias.get(i));
         }
@@ -121,12 +88,7 @@ public class Huesped {
 
     @Override
     public String toString() {
-        return "Huesped{" +
-                "nombre='" + nombre + '\'' +
-                ", dni='" + dni + '\'' +
-                ", email='" + email + '\'' +
-                ", telefono='" + telefono + '\'' +
-                ", categoria='" + categoria + '\'' +
-                '}';
+        return "Huesped{nombre='" + nombre + "', dni='" + dni + "', email='" + email
+                + "', telefono='" + telefono + "', categoria='" + categoria + "'}";
     }
 }

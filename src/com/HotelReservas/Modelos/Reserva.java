@@ -50,23 +50,27 @@ public class Reserva {
     public void setHabitacion(Habitacion habitacion) { this.habitacion = habitacion; }
     public void setEstrategia(EstrategiaPrecio estrategia) { this.estrategia = estrategia; }
 
-    // Operaciones
+    // FIX 2: confirmar() solo cambia el estado — NO ocupa la habitación todavía
     public void confirmar() {
         estadoActual.confirmar(this);
+    }
+
+    // FIX 3: cancelar() libera la habitación Y notifica observadores (Observer)
+    public void cancelar() {
+        estadoActual.cancelar(this);
+        habitacion.liberar(); // notifica observers automáticamente
+    }
+
+    // FIX 2: checkIn() es el momento correcto para marcar la habitación como ocupada
+    public void checkIn() {
+        estadoActual.checkIn(this);
         habitacion.ocupar(fechaIngreso, fechaEgreso);
     }
 
-    public void cancelar() {
-        estadoActual.cancelar(this);
-        habitacion.liberar();
-    }
-
-    public void checkIn() {
-        estadoActual.checkIn(this);
-    }
-
+    // checkOut libera la habitación y notifica observers
     public void checkOut() {
         estadoActual.checkOut(this);
+        habitacion.liberar(); // notifica observers automáticamente
         huesped.agregarEstadia(toString());
     }
 
@@ -83,5 +87,15 @@ public class Reserva {
             totalServicios += serviciosExtra[i].getCostoAdicional();
         }
         return totalHabitacion + totalServicios;
+    }
+
+    @Override
+    public String toString() {
+        return "Reserva{id=" + id
+                + ", huesped=" + huesped.getNombre()
+                + ", habitacion=" + habitacion.getNumero()
+                + ", ingreso=" + fechaIngreso
+                + ", egreso=" + fechaEgreso
+                + ", estado=" + estadoActual.getNombre() + "}";
     }
 }

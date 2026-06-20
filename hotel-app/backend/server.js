@@ -155,6 +155,18 @@ app.post('/api/reservas', async (req, res) => {
   const [[hab]] = await pool.query('SELECT estado_habitacion FROM habitacion WHERE id_habitacion=?', [habitacion_id]);
   const estadoInicial = (hab && hab.estado_habitacion === 'OCUPADA') ? 'LISTA_ESPERA' : 'PENDIENTE';
 
+  // Verificar que no haya reservas activas que se superpongan en fechas para esa habitación
+  const [solapadas] = await pool.query(`
+    SELECT id_reserva FROM reserva
+    WHERE habitacion_id = ?
+      AND estado_reserva NOT IN ('CANCELADA', 'COMPLETADA')
+      AND fecha_inicio < ? AND fecha_fin > ?
+  `, [habitacion_id, fecha_fin, fecha_inicio]);
+
+  if (solapadas.length > 0) {
+    return res.status(400).json({ error: 'Ya existe una reserva para esa habitación en esas fechas' });
+  }
+
   const [result] = await pool.query(
     'INSERT INTO reserva (fecha_inicio, fecha_fin, estado_reserva, huesped_id, habitacion_id) VALUES (?,?,?,?,?)',
     [fecha_inicio, fecha_fin, estadoInicial, huesped_id, habitacion_id]
